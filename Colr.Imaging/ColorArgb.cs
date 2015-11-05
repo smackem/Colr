@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
-namespace Lsb.Common.Drawing
+namespace Colr.Imaging
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct ColorArgb : IEquatable<ColorArgb>

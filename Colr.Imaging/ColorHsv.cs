@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lsb.Common.Drawing
+namespace Colr.Imaging
 {
     public struct ColorHsv
     {
