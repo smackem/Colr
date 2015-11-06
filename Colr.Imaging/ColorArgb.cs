@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
@@ -25,14 +24,14 @@ namespace Colr.Imaging
         [FieldOffset(0)]
         public readonly int Argb;
 
-        public static readonly ColorArgb Zero = ColorArgb.FromArgb(0);
-        public static readonly ColorArgb Transparent = ColorArgb.FromArgb(0x00ffffff);
-        public static readonly ColorArgb Black = ColorArgb.FromRgb(0);
-        public static readonly ColorArgb White = ColorArgb.FromRgb(0x00ffffff);
+        public static readonly ColorArgb Zero = new ColorArgb(0);
+        public static readonly ColorArgb Transparent = new ColorArgb(0x00ffffff);
+        public static readonly ColorArgb Black = new ColorArgb(255, 0);
+        public static readonly ColorArgb White = new ColorArgb(255, 0x00ffffff);
 
         public int Rgb
         {
-            get { return Argb & 0x00FFFFFF; }
+            get { return Argb & 0x00ffffff; }
         }
 
         public double ScA
@@ -55,55 +54,27 @@ namespace Colr.Imaging
             get { return (double)B / 255.0; }
         }
 
-        public byte PaR
-        {
-            get { return ColorArgb.ClampDouble(ScA * (double)R); }
-        }
-
-        public byte PaG
-        {
-            get { return ColorArgb.ClampDouble(ScA * (double)G); }
-        }
-
-        public byte PaB
-        {
-            get { return ColorArgb.ClampDouble(ScA * (double)B); }
-        }
-
-        public int Pargb
-        {
-            get
-            {
-                var scA = ScA;
-                return (int)A << 24 | (int)ColorArgb.ClampDouble(scA * (double)R) << 16 | (int)ColorArgb.ClampDouble(scA * (double)G) << 8 | (int)ColorArgb.ClampDouble(scA * (double)B);
-            }
-        }
-
         public double GetIntensity()
         {
-            return (0.299 * R + 0.587 * G + 0.114 * B) * A / (double)(0xFF * 0xFF);
-        }
-
-        public byte GetIntensityByte()
-        {
-            return (byte)((0.299f * (float)R + 0.587f * (float)G + 0.114f * (float)B) * (float)A / 255f + 0.5f);
+            return (0.299 * R + 0.587 * G + 0.114 * B) * A / (255.0 * 255.0);
         }
 
         public ColorArgb Invert()
         {
-            return ColorArgb.FromArgb(A, (byte)(255 - R), (byte)(255 - G), (byte)(255 - B));
+            return new ColorArgb(A, (byte)(255 - R), (byte)(255 - G), (byte)(255 - B));
         }
 
-        public ColorArgb NewAlpha(byte alpha)
+        public ColorArgb NewAlpha(byte a)
         {
-            return ColorArgb.FromArgb(alpha, Argb);
+            return new ColorArgb(a, R, G, B);
         }
 
         public double GetHue()
         {
-            double num;
-            double num2;
-            return GetHue(out num, out num2);
+            double min;
+            double max;
+
+            return GetHue(out min, out max);
         }
 
         public static bool operator ==(ColorArgb argb1, ColorArgb argb2)
@@ -126,118 +97,58 @@ namespace Colr.Imaging
             return new ColorArgb(argb);
         }
 
-        public static ColorArgb FromArgb(byte a, int rgb)
-        {
-            return new ColorArgb(a, rgb);
-        }
-
-        public static ColorArgb FromRgb(int rgb)
-        {
-            return new ColorArgb(255, rgb);
-        }
-
-        public static ColorArgb FromRgb(byte r, byte g, byte b)
-        {
-            return new ColorArgb(255, r, g, b);
-        }
-
         public static ColorArgb FromHsv(byte a, ColorHsv hsv)
         {
-            double h = hsv.Hue;
-            double s = hsv.Saturation;
-            double v = hsv.Value;
-            int num = (int)h / 60 % 6;
-            double num2 = 0.0;
-            double num3 = 0.0;
-            double num4 = 0.0;
-            double num5 = h / 60.0 - (double)num;
-            double num6 = v * (1.0 - s);
-            double num7 = v * (1.0 - num5 * s);
-            double num8 = v * (1.0 - (1.0 - num5) * s);
+            var h = hsv.H;
+            var s = hsv.S;
+            var v = hsv.V;
 
-            switch (num)
+            var hi = (int)h / 60 % 6;
+            var f = h / 60.0 - (double)hi;
+
+            var r = 0.0;
+            var g = 0.0;
+            var b = 0.0;
+
+            var p = v * (1.0 - s);
+            var q = v * (1.0 - f * s);
+            var t = v * (1.0 - (1.0 - f) * s);
+
+            switch (hi)
             {
                 case 0:
-                    num2 = v;
-                    num3 = num8;
-                    num4 = num6;
+                    r = v;
+                    g = t;
+                    b = p;
                     break;
                 case 1:
-                    num2 = num7;
-                    num3 = v;
-                    num4 = num6;
+                    r = q;
+                    g = v;
+                    b = p;
                     break;
                 case 2:
-                    num2 = num6;
-                    num3 = v;
-                    num4 = num8;
+                    r = p;
+                    g = v;
+                    b = t;
                     break;
                 case 3:
-                    num2 = num6;
-                    num3 = num7;
-                    num4 = v;
+                    r = p;
+                    g = q;
+                    b = v;
                     break;
                 case 4:
-                    num2 = num8;
-                    num3 = num6;
-                    num4 = v;
+                    r = t;
+                    g = p;
+                    b = v;
                     break;
                 case 5:
-                    num2 = v;
-                    num3 = num6;
-                    num4 = num7;
+                    r = v;
+                    g = p;
+                    b = q;
                     break;
             }
 
-            return ColorArgb.FromArgb(a, (byte)(num2 * 255.0 + 0.5), (byte)(num3 * 255.0 + 0.5), (byte)(num4 * 255.0 + 0.5));
-        }
-
-        public static ColorArgb FromHsl(byte nAlpha, ColorHsl hsl)
-        {
-            double h = hsl.Hue;
-            double s = hsl.Saturation;
-            double l = hsl.Lightness;
-            double num = (l < 0.5) ? (l * (1.0 + s)) : (l + s - l * s);
-            double num2 = 2.0 * l - num;
-            double num3 = h / 360.0;
-            double[] array = new double[]
-            {
-                num3 + 0.33333333333333331,
-                num3,
-                num3 - 0.33333333333333331
-            };
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (array[i] < 0.0)
-                {
-                    array[i] += 1.0;
-                }
-                else if (array[i] > 1.0)
-                {
-                    array[i] -= 1.0;
-                }
-            }
-            double[] array2 = new double[3];
-            for (int j = 0; j < array2.Length; j++)
-            {
-                if (array[j] < 0.16666666666666666)
-                {
-                    array2[j] = num2 + (num - num2) * 6.0 * array[j];
-                }
-                else if (array[j] >= 0.16666666666666666 && array[j] < 0.5)
-                {
-                    array2[j] = num;
-                }
-                else if (array[j] >= 0.5 && array[j] < 0.66666666666666663)
-                {
-                    array2[j] = num2 + (num - num2) * (0.66666666666666663 - array[j]) * 6.0;
-                }
-                else
-                {
-                    array2[j] = num2;
-                }
-            }
-            return ColorArgb.FromArgb(nAlpha, (byte)(array2[0] * 255.0 + 0.5), (byte)(array2[1] * 255.0 + 0.5), (byte)(array2[2] * 255.0 + 0.5));
+            return ColorArgb.FromArgb(a, (byte)(r * 255.0 + 0.5), (byte)(g * 255.0 + 0.5), (byte)(b * 255.0 + 0.5));
         }
 
         public static ColorArgb Parse(string str)
@@ -327,8 +238,8 @@ namespace Colr.Imaging
         public override bool Equals(object obj)
         {
             return obj != null
-            && obj.GetType() == typeof(ColorArgb)
-            && ((ColorArgb)obj).Argb == Argb;
+                && obj.GetType() == typeof(ColorArgb)
+                && ((ColorArgb)obj).Argb == Argb;
         }
 
         public override int GetHashCode()
@@ -343,16 +254,9 @@ namespace Colr.Imaging
 
         public string ToString(bool isHtmlFormat)
         {
-            if (isHtmlFormat)
-                return "#" + R.ToString("X2") + G.ToString("X2") + B.ToString("X2");
-
-            return A.ToString("X2")
-            + "-"
-            + R.ToString("X2")
-            + "-"
-            + G.ToString("X2")
-            + "-"
-            + B.ToString("X2");
+            return isHtmlFormat
+                   ? String.Format("#{0:X2}{1:X2}{2:X2}", R, G, B)
+                   : String.Format("{0:X2}-{1:X2}-{2:X2}-{3:X2}", A, R, G, B);
         }
 
         internal double GetHue(out double min, out double max)
@@ -394,17 +298,13 @@ namespace Colr.Imaging
             return result;
         }
 
-        #region IEquatable implementation
-
         public bool Equals(ColorArgb other)
         {
             return Argb == other.Argb;
         }
 
-        #endregion
 
-
-        /////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
 
         private ColorArgb(byte a, byte r, byte g, byte b)
             : this()
