@@ -4,54 +4,102 @@ using System.Runtime.InteropServices;
 
 namespace Colr.Imaging
 {
+    /// <summary>
+    /// An immutable color class that stores color information in a 32 bit word
+    /// containing the alpha, red, green and blue channels.
+    /// </summary>
+    /// <remarks>
+    /// The memory layout of the struct is actually BGRA. One <see cref="ColorArgb"/> matches
+    /// one pixel of an image encoded in Bgra32 format.
+    /// </remarks>
     [StructLayout(LayoutKind.Explicit)]
     public struct ColorArgb : IEquatable<ColorArgb>
     {
+        /// <summary>
+        /// The size of this struct.
+        /// </summary>
         public const int SizeOf = 4;
 
+        /// <summary>
+        /// The value of the blue channel (0..255).
+        /// </summary>
         [FieldOffset(0)]
         public readonly byte B;
 
+        /// <summary>
+        /// The value of the green channel (0..255).
+        /// </summary>
         [FieldOffset(1)]
         public readonly byte G;
 
+        /// <summary>
+        /// The value of the red channel (0..255).
+        /// </summary>
         [FieldOffset(2)]
         public readonly byte R;
 
+        /// <summary>
+        /// The value of the alpha channel (0..255).
+        /// </summary>
         [FieldOffset(3)]
         public readonly byte A;
 
+        /// <summary>
+        /// A 32 bit word containing all channel values.
+        /// </summary>
         [FieldOffset(0)]
         public readonly int Argb;
 
+        /// <summary>
+        /// A constant that equals an uninitialized instance of <see cref="ColorArgb"/>.
+        /// </summary>
         public static readonly ColorArgb Zero = new ColorArgb(0);
+
+        /// <summary>
+        /// A constant that holds the color transparent (A = 0, all other channels = 255).
+        /// </summary>
         public static readonly ColorArgb Transparent = new ColorArgb(0x00ffffff);
+
+        /// <summary>
+        /// A constant that holds the color black (A = 255, all other channels = 0).
+        /// </summary>
         public static readonly ColorArgb Black = new ColorArgb(255, 0);
+
+        /// <summary>
+        /// A constant that holds the color white (all channels = 255).
+        /// </summary>
         public static readonly ColorArgb White = new ColorArgb(255, 0x00ffffff);
 
-        public int Rgb
-        {
-            get { return Argb & 0x00ffffff; }
-        }
-
+        /// <summary>
+        /// Gets the value of the alpha channel (0.0 .. 1.0).
+        /// </summary>
         public double ScA
         {
-            get { return (double)A / 255.0; }
+            get { return A / 255.0; }
         }
 
+        /// <summary>
+        /// Gets the value of the red channel (0.0 .. 1.0).
+        /// </summary>
         public double ScR
         {
-            get { return (double)R / 255.0; }
+            get { return R / 255.0; }
         }
 
+        /// <summary>
+        /// Gets the value of the green channel (0.0 .. 1.0).
+        /// </summary>
         public double ScG
         {
-            get { return (double)G / 255.0; }
+            get { return G / 255.0; }
         }
 
+        /// <summary>
+        /// Gets the value of the blue channel (0.0 .. 1.0).
+        /// </summary>
         public double ScB
         {
-            get { return (double)B / 255.0; }
+            get { return B / 255.0; }
         }
 
         public double GetIntensity()
@@ -207,20 +255,6 @@ namespace Colr.Imaging
             return ColorArgb.FromArgb(a, r, g, b);
         }
 
-        public static ColorArgb AlphaBlend(ColorArgb lower, ColorArgb upper)
-        {
-            var upperA = upper.ScA;
-            var inverseUpperA = 1.0 - upperA;
-            var lowerA = lower.ScA;
-            var a = lowerA + (1.0 - lowerA) * upperA;
-
-            return new ColorArgb(
-                ClampDouble(255.0 * a),
-                ClampDouble(inverseUpperA * (double)lower.R + upperA * (double)upper.R),
-                ClampDouble(inverseUpperA * (double)lower.G + upperA * (double)upper.G),
-                ClampDouble(inverseUpperA * (double)lower.B + upperA * (double)upper.B));
-        }
-
         public static ColorArgb AlphaComposite(ColorArgb lower, ColorArgb upper)
         {
             var lowerA = lower.ScA;
@@ -230,9 +264,9 @@ namespace Colr.Imaging
 
             return new ColorArgb(
                 ClampDouble(255.0 * a),
-                ClampDouble(((double)upper.R * upperA + (double)lower.R * lowerA * inverseUpperA) / a),
-                ClampDouble(((double)upper.G * upperA + (double)lower.G * lowerA * inverseUpperA) / a),
-                ClampDouble(((double)upper.B * upperA + (double)lower.B * lowerA * inverseUpperA) / a));
+                ClampDouble((upper.R * upperA + lower.R * lowerA * inverseUpperA) / a),
+                ClampDouble((upper.G * upperA + lower.G * lowerA * inverseUpperA) / a),
+                ClampDouble((upper.B * upperA + lower.B * lowerA * inverseUpperA) / a));
         }
 
         public override bool Equals(object obj)
