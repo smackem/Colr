@@ -102,6 +102,12 @@ namespace Colr.Imaging
             get { return B / 255.0; }
         }
 
+        /// <summary>
+        /// Gets the color intensity (0.0 .. 1.0).
+        /// This is the weighted lightness that takes different
+        /// channel brightnesses into account.
+        /// </summary>
+        /// <returns>The color intensity.</returns>
         public double GetIntensity()
         {
             return (0.299 * R + 0.587 * G + 0.114 * B) * A / (255.0 * 255.0);
@@ -272,8 +278,8 @@ namespace Colr.Imaging
         public override bool Equals(object obj)
         {
             return obj != null
-                && obj.GetType() == typeof(ColorArgb)
-                && ((ColorArgb)obj).Argb == Argb;
+            && obj.GetType() == typeof(ColorArgb)
+            && ((ColorArgb)obj).Argb == Argb;
         }
 
         public override int GetHashCode()

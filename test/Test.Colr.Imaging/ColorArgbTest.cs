@@ -21,10 +21,10 @@ namespace Test.Colr.Imaging
             Assert.That(argb1.B, Is.EqualTo(0x44));
 
             var argb2 = ColorArgb.FromArgb(0x11, 0x22, 0x33, 0x44);
-            Assert.That(argb1.A, Is.EqualTo(0x11));
-            Assert.That(argb1.R, Is.EqualTo(0x22));
-            Assert.That(argb1.G, Is.EqualTo(0x33));
-            Assert.That(argb1.B, Is.EqualTo(0x44));
+            Assert.That(argb2.A, Is.EqualTo(0x11));
+            Assert.That(argb2.R, Is.EqualTo(0x22));
+            Assert.That(argb2.G, Is.EqualTo(0x33));
+            Assert.That(argb2.B, Is.EqualTo(0x44));
         }
 
         [Test]
