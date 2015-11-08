@@ -113,16 +113,31 @@ namespace Colr.Imaging
             return (0.299 * R + 0.587 * G + 0.114 * B) * A / (255.0 * 255.0);
         }
 
+        /// <summary>
+        /// Gets a <see cref="ColorArgb"/> instance with all channels inverted.
+        /// </summary>
+        /// <returns>A <see cref="ColorArgb"/> instance with all channels inverted.</returns>
         public ColorArgb Invert()
         {
             return new ColorArgb(A, (byte)(255 - R), (byte)(255 - G), (byte)(255 - B));
         }
 
+        /// <summary>
+        /// Gets a <see cref="ColorArgb"/> instance that is identical to the current
+        /// instance but with a new value for the alpha channel.
+        /// </summary>
+        /// <param name="a">The new alpha</param>
+        /// <returns>a <see cref="ColorArgb"/> instance that is identical to the current
+        /// instance but with a new value for the alpha channel.</returns>
         public ColorArgb NewAlpha(byte a)
         {
             return new ColorArgb(a, R, G, B);
         }
 
+        /// <summary>
+        /// Gets the hue.
+        /// </summary>
+        /// <returns>The hue (0.0 .. 360 exclusive).</returns>
         public double GetHue()
         {
             double min;
@@ -131,26 +146,58 @@ namespace Colr.Imaging
             return GetHue(out min, out max);
         }
 
+        /// <summary>
+        /// Compares to <see cref="ColorArgb"/> instances for equality. 
+        /// </summary>
+        /// <param name="argb1">The first instance.</param>
+        /// <param name="argb2">THe second instance.</param>
         public static bool operator ==(ColorArgb argb1, ColorArgb argb2)
         {
             return argb1.Argb == argb2.Argb;
         }
 
+        /// <summary>
+        /// Compares to <see cref="ColorArgb"/> instances for inequality. 
+        /// </summary>
+        /// <param name="argb1">The first instance.</param>
+        /// <param name="argb2">THe second instance.</param>
         public static bool operator !=(ColorArgb argb1, ColorArgb argb2)
         {
             return argb1.Argb != argb2.Argb;
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="ColorArgb"/> from individual component values.
+        /// </summary>
+        /// <param name="a">The alpha component.</param>
+        /// <param name="r">The red component.</param>
+        /// <param name="g">The green component.</param>
+        /// <param name="b">The blue component.</param>
+        /// <returns>The new instance.</returns>
         public static ColorArgb FromArgb(byte a, byte r, byte g, byte b)
         {
             return new ColorArgb(a, r, g, b);
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="ColorArgb"/> from an integer containing
+        /// all component values.
+        /// </summary>
+        /// <param name="argb">An integer containing all component values. <see cref="ColorArgb.Argb"/>.</param>
+        /// <returns>The new instance.</returns>
         public static ColorArgb FromArgb(int argb)
         {
             return new ColorArgb(argb);
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="ColorArgb"/> from a
+        /// HSV (hue-saturation-value) color.
+        /// </summary>
+        /// <param name="a">The alpha component for the new <see cref="ColorAgb"/>.</param>
+        /// <param name="hsv">The <see cref="ColorHsv"/> containing the hue, saturation and value
+        /// components.</param>
+        /// <returns>The new <see cref="ColorArgb"/> instance.</returns>
         public static ColorArgb FromHsv(byte a, ColorHsv hsv)
         {
             var h = hsv.H;
@@ -205,6 +252,14 @@ namespace Colr.Imaging
             return ColorArgb.FromArgb(a, (byte)(r * 255.0 + 0.5), (byte)(g * 255.0 + 0.5), (byte)(b * 255.0 + 0.5));
         }
 
+        /// <summary>
+        /// Parse the specified string.
+        /// Supported string formats are #RRGGBB, #AARRGGBB,
+        /// RR-GG-BB, AA-RR-GG-BB (each in hex).
+        /// </summary>
+        /// <param name="str">The string representation of a color.</param>
+        /// <exception cref="ArgumentException">Thrown when specified string
+        /// is not in a supported format.</exception>
         public static ColorArgb Parse(string str)
         {
             byte a = 255;
@@ -261,6 +316,13 @@ namespace Colr.Imaging
             return ColorArgb.FromArgb(a, r, g, b);
         }
 
+        /// <summary>
+        /// Builds the result of a color composition that paints one color
+        /// over the other, taking into account alpha values.
+        /// </summary>
+        /// <param name="lower">Lower color.</param>
+        /// <param name="upper">Upper color.</param>
+        /// <returns>The color that results from the composition.</returns>
         public static ColorArgb AlphaComposite(ColorArgb lower, ColorArgb upper)
         {
             var lowerA = lower.ScA;
@@ -275,6 +337,12 @@ namespace Colr.Imaging
                 ClampDouble((upper.B * upperA + lower.B * lowerA * inverseUpperA) / a));
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="Colr.Imaging.ColorArgb"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="Colr.Imaging.ColorArgb"/>.</param>
+        /// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
+        /// <see cref="Colr.Imaging.ColorArgb"/>; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
             return obj != null
@@ -282,21 +350,46 @@ namespace Colr.Imaging
             && ((ColorArgb)obj).Argb == Argb;
         }
 
+        /// <summary>
+        /// Serves as a hash function for a <see cref="Colr.Imaging.ColorArgb"/> object.
+        /// </summary>
+        /// <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a
+        /// hash table.</returns>
         public override int GetHashCode()
         {
             return Argb;
         }
 
+        /// <summary>
+        /// Returns a <see cref="System.String"/> that represents the current <see cref="Colr.Imaging.ColorArgb"/>.
+        /// </summary>
+        /// <returns>A <see cref="System.String"/> that represents the current <see cref="Colr.Imaging.ColorArgb"/>.</returns>
         public override string ToString()
         {
             return ToString(false);
         }
 
+        /// <summary>
+        /// Tos the string.
+        /// </summary>
+        /// <returns>The string.</returns>
+        /// <param name="isHtmlFormat">If set to <c>true</c> is html format.</param>
         public string ToString(bool isHtmlFormat)
         {
             return isHtmlFormat
                    ? String.Format("#{0:X2}{1:X2}{2:X2}", R, G, B)
                    : String.Format("{0:X2}-{1:X2}-{2:X2}-{3:X2}", A, R, G, B);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="Colr.Imaging.ColorArgb"/> is equal to the current <see cref="Colr.Imaging.ColorArgb"/>.
+        /// </summary>
+        /// <param name="other">The <see cref="Colr.Imaging.ColorArgb"/> to compare with the current <see cref="Colr.Imaging.ColorArgb"/>.</param>
+        /// <returns><c>true</c> if the specified <see cref="Colr.Imaging.ColorArgb"/> is equal to the current
+        /// <see cref="Colr.Imaging.ColorArgb"/>; otherwise, <c>false</c>.</returns>
+        public bool Equals(ColorArgb other)
+        {
+            return Argb == other.Argb;
         }
 
         internal double GetHue(out double min, out double max)
@@ -336,11 +429,6 @@ namespace Colr.Imaging
             }
 
             return result;
-        }
-
-        public bool Equals(ColorArgb other)
-        {
-            return Argb == other.Argb;
         }
 
 
