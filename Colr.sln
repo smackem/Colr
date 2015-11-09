@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{78579028-E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Colr.Imaging", "test\Test.Colr.Imaging\Test.Colr.Imaging.csproj", "{ADE2BAA9-1851-49C5-A330-F93DC8A4F865}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Colr.DesktopApp", "source\Colr.DesktopApp\Colr.DesktopApp.csproj", "{BA700D2F-4669-4E7D-B1C1-B139CA9C32C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{ADE2BAA9-1851-49C5-A330-F93DC8A4F865}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADE2BAA9-1851-49C5-A330-F93DC8A4F865}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADE2BAA9-1851-49C5-A330-F93DC8A4F865}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA700D2F-4669-4E7D-B1C1-B139CA9C32C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA700D2F-4669-4E7D-B1C1-B139CA9C32C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA700D2F-4669-4E7D-B1C1-B139CA9C32C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA700D2F-4669-4E7D-B1C1-B139CA9C32C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,5 +38,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3E719B30-0BD8-40C5-B8B8-312B9A73373E} = {67986CCA-6763-4213-B02F-0D5ED8DC2037}
 		{ADE2BAA9-1851-49C5-A330-F93DC8A4F865} = {78579028-E42A-42DE-8569-53685C7C0002}
+		{BA700D2F-4669-4E7D-B1C1-B139CA9C32C8} = {67986CCA-6763-4213-B02F-0D5ED8DC2037}
 	EndGlobalSection
 EndGlobal
