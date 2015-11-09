@@ -4,8 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Colr.DesktopApp"
+        xmlns:lx="clr-namespace:Colr.DesktopApp.Util"
         mc:Ignorable="d"
-        Title="Colr" Height="350" Width="525">
+        Title="Colr" Height="600" Width="800">
+    <Window.Resources>
+        <lx:NotNullToVisibleConverter x:Key="notNullToVisibleConverter" />
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -13,14 +18,23 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
-            <ColumnDefinition />
+            <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
         <ToolBar Grid.ColumnSpan="2">
-            <Button Content="Open..." Click="Button_Click" />
+            <Button Content="Open..." Click="openButton_Click" />
         </ToolBar>
-        <ScrollViewer Grid.Row="1" Grid.Column="0">
-            <Image Source="{Binding Path=Image}" />
-        </ScrollViewer>
-        <GridSplitter Grid.Row="1" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="5" />
+        <Viewbox Grid.Row="1" Grid.Column="0"
+                 VerticalAlignment="Top">
+            <Image Source="{Binding Path=ImageSource}" />
+        </Viewbox>
+        <GridSplitter Grid.Row="1" Grid.Column="1"
+                      VerticalAlignment="Stretch" HorizontalAlignment="Left"
+                      Width="5" />
+        <Grid Grid.Row="1" Grid.Column="1" Margin="5 0 0 0">
+            <StackPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                <Button Content="Analyze" Click="analyzeButton_Click"
+                        Visibility="{Binding Path=ImageSource, Converter={StaticResource notNullToVisibleConverter}}"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,12 +21,27 @@ namespace Colr.DesktopApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        readonly ApplicationLayer.MainWindowModel model;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            this.model = new ApplicationLayer.MainWindowModel();
+            DataContext = this.model;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        ///////////////////////////////////////////////////////////////////////
+
+        void openButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog();
+
+            if (dialog.ShowDialog() == true)
+                this.model.LoadImage(dialog.FileName);
+        }
+
+        void analyzeButton_Click(object sender, RoutedEventArgs e)
         {
 
         }

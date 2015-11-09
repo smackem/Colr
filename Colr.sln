@@ -13,6 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Colr.Imaging", "test\T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Colr.DesktopApp", "source\Colr.DesktopApp\Colr.DesktopApp.csproj", "{BA700D2F-4669-4E7D-B1C1-B139CA9C32C8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{0A94A0CB-CEA6-4377-8262-3808F5235210}"
+	ProjectSection(SolutionItems) = preProject
+		common\FeatherSharp.cmd = common\FeatherSharp.cmd
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
