@@ -18,6 +18,8 @@ namespace Colr.DesktopApp.ApplicationLayer
     {
         public ImageSource ImageSource { get; private set; }
         public SD.Bitmap Bitmap { get; private set; }
+        public int[] HueDistribution { get; private set; }
+        public double? DominantHue { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -25,9 +27,41 @@ namespace Colr.DesktopApp.ApplicationLayer
         {
             Bitmap = Bitmaps.LoadFromFile(filePath);
             ImageSource = ToBitmapSource(Bitmap);
+
+            HueDistribution = null;
+            DominantHue = null;
+        }
+
+        public void AnalyzeImage()
+        {
+            if (Bitmap != null)
+            {
+                var dist = Bitmap.GetHueDistribution(360);
+
+                HueDistribution = dist.Distribution;
+                DominantHue = dist.DominantHue;
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////
+
+        int[] ReduceDistributionData(int[] data)
+        {
+            var newData = new int[data.Length / 30];
+            var index = 0;
+
+            for (var i = 0; i < data.Length; i += 30)
+            {
+                var value = 0;
+
+                for (var j = 0; j < 30; j++)
+                    value += data[i + j];
+
+                newData[index++] = value;
+            }
+
+            return newData;
+        }
 
         void OnPropertyChanged(string propertyName)
         {

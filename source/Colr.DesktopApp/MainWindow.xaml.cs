@@ -43,7 +43,7 @@ namespace Colr.DesktopApp
 
         void analyzeButton_Click(object sender, RoutedEventArgs e)
         {
-
+            this.model.AnalyzeImage();
         }
     }
 }

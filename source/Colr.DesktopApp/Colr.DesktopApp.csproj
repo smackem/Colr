@@ -61,6 +61,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ApplicationLayer\MainWindowModel.cs" />
+    <Compile Include="Controls\DistributionCurve.cs" />
+    <Compile Include="Controls\DrawingPane.cs" />
     <Compile Include="Util\NativeMethods.cs" />
     <Compile Include="Util\ValueConverters.cs" />
     <Page Include="MainWindow.xaml">
@@ -75,6 +77,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -109,6 +115,10 @@
       <Project>{3e719b30-0bd8-40c5-b8b8-312b9a73373e}</Project>
       <Name>Colr.Imaging</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\hues.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

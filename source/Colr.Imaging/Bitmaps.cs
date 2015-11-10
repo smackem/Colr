@@ -30,7 +30,8 @@ namespace Colr.Imaging
                 return BltConvert(bitmap);
         }
 
-        public static unsafe double? GetDominantHue(this Bitmap bitmap)
+        [Obsolete("This is just a naive reference implementation for GetDominantHue")]
+        public static unsafe double? GetDominantHue_Slow(this Bitmap bitmap)
         {
             var hueCounts = new int[3600];
             var mostCommonHue = default(int?);
@@ -60,9 +61,30 @@ namespace Colr.Imaging
                    : null;
         }
 
-        public static unsafe double? GetDominantHueParallel(this Bitmap bitmap)
+        public static unsafe HueDistribution GetHueDistribution(this Bitmap bitmap, int hueSteps)
         {
-            var distribution = new int[3600];
+            var distribution = GetHueDistributionParallel(bitmap, hueSteps);
+            var mostCommonHue = 0;
+
+            for (var i = 1; i < distribution.Length; i++)
+            {
+                if (distribution[i] > distribution[mostCommonHue])
+                    mostCommonHue = i;
+            }
+
+            var dominantHue = distribution[mostCommonHue] > 0
+                              ? (double?)(mostCommonHue / (hueSteps / 360.0))
+                              : null;
+
+            return new HueDistribution(dominantHue, distribution);
+        }
+
+
+        ////////////////////////////////////////////////////////////////
+
+        private static unsafe int[] GetHueDistributionParallel(Bitmap bitmap, int hueSteps)
+        {
+            var distribution = new int[hueSteps];
 
             using (var bits = BitsLock.FromBitmap(bitmap))
             {
@@ -73,10 +95,10 @@ namespace Colr.Imaging
 
                 var tasks = new[]
                 {
-                    Task.Run(() => GetHueDistribution(pPixel, segmentWidth, segmentHeight, stride)),
-                    Task.Run(() => GetHueDistribution(pPixel + segmentWidth, segmentWidth, segmentHeight, stride)),
-                    Task.Run(() => GetHueDistribution(pPixel + segmentHeight * stride, segmentWidth, segmentHeight, stride)),
-                    Task.Run(() => GetHueDistribution(pPixel + segmentHeight * stride + segmentWidth, segmentWidth, segmentHeight, stride)),
+                    Task.Run(() => GetHueDistribution(pPixel, segmentWidth, segmentHeight, stride, hueSteps)),
+                    Task.Run(() => GetHueDistribution(pPixel + segmentWidth, segmentWidth, segmentHeight, stride, hueSteps)),
+                    Task.Run(() => GetHueDistribution(pPixel + segmentHeight * stride, segmentWidth, segmentHeight, stride, hueSteps)),
+                    Task.Run(() => GetHueDistribution(pPixel + segmentHeight * stride + segmentWidth, segmentWidth, segmentHeight, stride, hueSteps)),
                 };
 
                 Task.WaitAll(tasks);
@@ -88,24 +110,13 @@ namespace Colr.Imaging
                 }
             }
 
-            int mostCommonHue = 0;
-            for (var i = 1; i < distribution.Length; i++)
-            {
-                if (distribution[i] > distribution[mostCommonHue])
-                    mostCommonHue = i;
-            }
-
-            return distribution[mostCommonHue] > 0
-                   ? (double?)(mostCommonHue / 10.0)
-                   : null;
+            return distribution;
         }
 
-
-        ////////////////////////////////////////////////////////////////
-
-        static unsafe int[] GetHueDistribution(ColorArgb* pBits, int width, int height, int stride)
+        static unsafe int[] GetHueDistribution(ColorArgb* pBits, int width, int height, int stride, int hueSteps)
         {
-            var hueCounts = new int[3600];
+            var hueCounts = new int[hueSteps];
+            var granularity = hueSteps / 360.0;
 
             for (var y = 0; y < height; y++)
             {
@@ -115,7 +126,7 @@ namespace Colr.Imaging
 
                     if (hsv.S > 0.02)
                     {
-                        var multipliedHue = (int)(hsv.H * 10.0);
+                        var multipliedHue = (int)(hsv.H * granularity);
 
                         hueCounts[multipliedHue]++;
                     }

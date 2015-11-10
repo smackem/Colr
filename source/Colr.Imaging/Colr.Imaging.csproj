@@ -34,6 +34,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HueDistribution.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ColorArgb.cs" />
     <Compile Include="ColorHsv.cs" />
