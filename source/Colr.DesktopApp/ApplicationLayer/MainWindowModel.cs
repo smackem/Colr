@@ -36,7 +36,7 @@ namespace Colr.DesktopApp.ApplicationLayer
         {
             if (Bitmap != null)
             {
-                var dist = Bitmap.GetHueDistribution(360);
+                var dist = Bitmap.GetHueDistribution(120);
 
                 HueDistribution = dist.Distribution;
                 DominantHue = dist.DominantHue;

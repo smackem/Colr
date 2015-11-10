@@ -24,14 +24,11 @@ namespace Colr.DesktopApp.Controls
 
         public static readonly DependencyProperty DistributionDataProperty =
             DependencyProperty.Register("DistributionData", typeof(int[]), typeof(DistributionCurve),
-                new PropertyMetadata(null,
-                    (sender, e) =>
-                    {
-                        var control = (DistributionCurve)sender;
+                new PropertyMetadata(null, TriggerRender));
 
-                        if (control.IsLoaded)
-                            control.Render();
-                    }));
+        public static readonly DependencyProperty CurveFillProperty =
+            DependencyProperty.Register("CurveFill", typeof(Brush), typeof(DistributionCurve),
+                new PropertyMetadata(null, TriggerRender));
 
         public DistributionCurve()
         {
@@ -43,6 +40,12 @@ namespace Colr.DesktopApp.Controls
         {
             get { return (int[])GetValue(DistributionDataProperty); }
             set { SetValue(DistributionDataProperty, value); }
+        }
+
+        public Brush CurveFill
+        {
+            get { return (Brush)GetValue(CurveFillProperty); }
+            set { SetValue(CurveFillProperty, value); }
         }
 
         /// <summary>
@@ -89,20 +92,25 @@ namespace Colr.DesktopApp.Controls
                 var dx = width / data.Length;
                 var dy = height / maxValue;
 
-                var pen = new Pen(Foreground, 1.0);
+                var geometry = new StreamGeometry();
 
-                var x = 0.0;
-                var point0 = new Point(x, height - data[0] * dy);
-
-                for (var i = 1; i < data.Length; i++)
+                using (var ctx = geometry.Open())
                 {
-                    x += dx;
-                    var point1 = new Point(x, height - data[i] * dy);
+                    ctx.BeginFigure(new Point(0, height), true, true);
 
-                    dc.DrawLine(pen, point0, point1);
+                    var x = 0.0;
 
-                    point0 = point1;
+                    for (var i = 0; i < data.Length; i++)
+                    {
+                        ctx.LineTo(new Point(x, height - data[i] * dy), true, true);
+                        x += dx;
+                    }
+
+                    ctx.LineTo(new Point(width, height), true, true);
                 }
+
+                var pen = new Pen(Foreground, 1.0);
+                dc.DrawGeometry(CurveFill, pen, geometry);
             }
         }
 
@@ -114,6 +122,14 @@ namespace Colr.DesktopApp.Controls
         void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             Render();
+        }
+
+        static void TriggerRender(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (DistributionCurve)sender;
+
+            if (control.IsLoaded)
+                control.Render();
         }
     }
 }

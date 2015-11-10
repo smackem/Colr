@@ -3,6 +3,11 @@
                     xmlns:lc="clr-namespace:Colr.DesktopApp.Controls">
 
     <Style TargetType="{x:Type lc:DistributionCurve}">
+        <Setter Property="CurveFill">
+            <Setter.Value>
+                <ImageBrush ImageSource="/Resources/hues.png" />
+            </Setter.Value>
+        </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type lc:DistributionCurve}">
@@ -10,13 +15,8 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <Grid>
-                            <Image Source="/Resources/hues.png" Stretch="Fill" Opacity="0.7" />
                             <lc:DrawingPane x:Name="PART_CurvePane" />
                         </Grid>
-                        <!--<DockPanel Margin="1">
-                            <Image Source="/Resources/hues.png" Height="10" Margin="0 1 0 0" DockPanel.Dock="Bottom" Stretch="Fill" />
-                            <lc:DrawingPane x:Name="PART_CurvePane" />
-                        </DockPanel>-->
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

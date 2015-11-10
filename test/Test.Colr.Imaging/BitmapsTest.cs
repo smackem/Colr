@@ -53,23 +53,23 @@ namespace Test.Colr.Imaging
             using (var stream = OpenResource("TestImage1.jpg"))
             using (var bitmap = Bitmaps.LoadFromStream(stream))
             {
-                var hue = bitmap.GetDominantHue_Slow();
-                var dist = bitmap.GetHueDistribution(3600);
+                var dist1 = bitmap.GetHueDistribution_Slow();
+                var dist2 = bitmap.GetHueDistribution(3600);
 
-                Assert.That(hue, Is.Not.Null);
-                Assert.That(hue == dist.DominantHue);
-                Assert.That(hue == 210.0);
+                Assert.That(dist1, Is.Not.Null);
+                Assert.That(dist1.DominantHue == dist2.DominantHue);
+                Assert.That(dist1.DominantHue == 210.0);
             }
 
             using (var stream = OpenResource("TestImage1SmallWithAlpha.png"))
             using (var bitmap = Bitmaps.LoadFromStream(stream))
             {
-                var hue = bitmap.GetDominantHue_Slow();
-                var dist = bitmap.GetHueDistribution(3600);
+                var dist1 = bitmap.GetHueDistribution_Slow();
+                var dist2 = bitmap.GetHueDistribution(3600);
 
-                Assert.That(hue, Is.Not.Null);
-                Assert.That(hue == dist.DominantHue);
-                Assert.That(hue == 210.0);
+                Assert.That(dist1, Is.Not.Null);
+                Assert.That(dist1.DominantHue == dist2.DominantHue);
+                Assert.That(dist1.DominantHue == 210.0);
             }
         }
 
@@ -79,11 +79,11 @@ namespace Test.Colr.Imaging
             using (var stream = OpenResource("BlackWhite.png"))
             using (var bitmap = Bitmaps.LoadFromStream(stream))
             {
-                var hue = bitmap.GetDominantHue_Slow();
-                var dist = bitmap.GetHueDistribution(3600);
+                var dist1 = bitmap.GetHueDistribution_Slow();
+                var dist2 = bitmap.GetHueDistribution(3600);
 
-                Assert.That(hue, Is.Null);
-                Assert.That(dist.DominantHue, Is.Null);
+                Assert.That(dist1.DominantHue, Is.Null);
+                Assert.That(dist2.DominantHue, Is.Null);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Test.Colr.Imaging
             using (var bitmap = Bitmaps.LoadFromStream(stream))
             {
                 for (var i = 0; i < 20; i++)
-                    bitmap.GetDominantHue_Slow();
+                    bitmap.GetHueDistribution_Slow();
             }
         }
 #pragma warning restore 618

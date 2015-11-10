@@ -32,15 +32,17 @@
         <GridSplitter Grid.Row="1" Grid.Column="1"
                       VerticalAlignment="Stretch" HorizontalAlignment="Left"
                       Width="5" />
-        <Grid Grid.Row="1" Grid.Column="1" Margin="5 0 0 0">
+        <Grid Grid.Row="1" Grid.Column="1" Margin="5 0 5 0">
             <StackPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Analyze" Click="analyzeButton_Click"
                         Visibility="{Binding Path=ImageSource, Converter={StaticResource notNullToVisibleConverter}}"/>
                 <StackPanel Visibility="{Binding Path=HueDistribution, Converter={StaticResource notNullToVisibleConverter}}">
-                    <lc:DistributionCurve DistributionData="{Binding Path=HueDistribution}" Height="100"
+                    <lc:DistributionCurve DistributionData="{Binding Path=HueDistribution}" Height="80"
                                           Background="White" Foreground="Black"
-                                          BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="1"/>
-                    <Border Height="40" Background="{Binding Path=DominantHue, Converter={StaticResource hueToBrushConverter}}" />
+                                          BorderBrush="Black" BorderThickness="1"
+                                          Margin="0 4 0 4"/>
+                    <Border Height="25" Background="{Binding Path=DominantHue, Converter={StaticResource hueToBrushConverter}}"
+                            BorderBrush="Black" BorderThickness="1" />
                 </StackPanel>
             </StackPanel>
         </Grid>

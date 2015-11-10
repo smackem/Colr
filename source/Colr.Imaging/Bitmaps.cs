@@ -31,7 +31,7 @@ namespace Colr.Imaging
         }
 
         [Obsolete("This is just a naive reference implementation for GetDominantHue")]
-        public static unsafe double? GetDominantHue_Slow(this Bitmap bitmap)
+        public static unsafe HueDistribution GetHueDistribution_Slow(this Bitmap bitmap)
         {
             var hueCounts = new int[3600];
             var mostCommonHue = default(int?);
@@ -56,9 +56,11 @@ namespace Colr.Imaging
                 }
             }
 
-            return mostCommonHue != null
-                   ? (double?)(mostCommonHue.Value / 10.0)
-                   : null;
+            var dominantHue = mostCommonHue != null
+                              ? (double?)(mostCommonHue.Value / 10.0)
+                              : null;
+
+            return new HueDistribution(dominantHue, hueCounts);
         }
 
         public static unsafe HueDistribution GetHueDistribution(this Bitmap bitmap, int hueSteps)
