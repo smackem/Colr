@@ -45,30 +45,12 @@ namespace Colr.DesktopApp.ApplicationLayer
 
         ///////////////////////////////////////////////////////////////////////
 
-        int[] ReduceDistributionData(int[] data)
-        {
-            var newData = new int[data.Length / 30];
-            var index = 0;
-
-            for (var i = 0; i < data.Length; i += 30)
-            {
-                var value = 0;
-
-                for (var j = 0; j < 30; j++)
-                    value += data[i + j];
-
-                newData[index++] = value;
-            }
-
-            return newData;
-        }
-
         void OnPropertyChanged(string propertyName)
         {
-            var propertyChanged = PropertyChanged;
+            var @event = PropertyChanged;
 
-            if (propertyChanged != null)
-                propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            if (@event != null)
+                @event(this, new PropertyChangedEventArgs(propertyName));
         }
 
         static BitmapSource ToBitmapSource(SD.Bitmap source)
