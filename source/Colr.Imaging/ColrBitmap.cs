@@ -173,17 +173,14 @@ namespace Colr.Imaging
         async Task<int[]> GetHueDistributionParallel(int hueSteps)
         {
             var distribution = new int[hueSteps];
-            var stride = this.stride;
-
-            var segmentWidth = stride / 2;
-            var segmentHeight = Bitmap.Height / 2;
+            var pixelsPerTask = Bitmap.Width * Bitmap.Height / 4;
 
             var tasks = new[]
             {
-                Task.Run(() => GetHueDistribution(0, segmentWidth, segmentHeight, stride, hueSteps)),
-                Task.Run(() => GetHueDistribution(segmentWidth, segmentWidth, segmentHeight, stride, hueSteps)),
-                Task.Run(() => GetHueDistribution(segmentHeight * stride, segmentWidth, segmentHeight, stride, hueSteps)),
-                Task.Run(() => GetHueDistribution(segmentHeight * stride + segmentWidth, segmentWidth, segmentHeight, stride, hueSteps)),
+                Task.Run(() => GetHueDistribution(0, pixelsPerTask, hueSteps)),
+                Task.Run(() => GetHueDistribution(pixelsPerTask, pixelsPerTask, hueSteps)),
+                Task.Run(() => GetHueDistribution(pixelsPerTask * 2, pixelsPerTask, hueSteps)),
+                Task.Run(() => GetHueDistribution(pixelsPerTask * 3, pixelsPerTask, hueSteps)),
             };
 
             var segmentDistributions = await Task.WhenAll(tasks);
@@ -197,27 +194,23 @@ namespace Colr.Imaging
             return distribution;
         }
 
-        int[] GetHueDistribution(int offset, int width, int height, int stride, int hueSteps)
+        int[] GetHueDistribution(int offset, int count, int hueSteps)
         {
             var distribution = new int[hueSteps];
             var granularity = hueSteps / 360.0;
             var hsvPixels = this.hsvPixels;
+            var end = offset + count;
 
-            for (var y = 0; y < height; y++)
+            for (var i = offset; i < end; i++)
             {
-                for (var x = 0; x < width; x++)
+                var hsv = hsvPixels[i];
+
+                if (hsv.S > 0.02)
                 {
-                    var hsv = hsvPixels[offset + x];
+                    var multipliedHue = (int)(hsv.H * granularity);
 
-                    if (hsv.S > 0.02)
-                    {
-                        var multipliedHue = (int)(hsv.H * granularity);
-
-                        distribution[multipliedHue]++;
-                    }
+                    distribution[multipliedHue]++;
                 }
-
-                offset += stride;
             }
 
             return distribution;

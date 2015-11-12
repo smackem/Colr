@@ -3,11 +3,6 @@
                     xmlns:lc="clr-namespace:Colr.DesktopApp.Controls">
 
     <Style TargetType="{x:Type lc:DistributionCurve}">
-        <Setter Property="CurveFill">
-            <Setter.Value>
-                <ImageBrush ImageSource="/Resources/hues.png" />
-            </Setter.Value>
-        </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type lc:DistributionCurve}">

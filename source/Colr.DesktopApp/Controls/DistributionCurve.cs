@@ -100,9 +100,9 @@ namespace Colr.DesktopApp.Controls
 
                     var x = 0.0;
 
-                    for (var i = 0; i < data.Length; i++)
+                    foreach (var hueCount in data)
                     {
-                        ctx.LineTo(new Point(x, height - data[i] * dy), true, true);
+                        ctx.LineTo(new Point(x, height - hueCount * dy), true, true);
                         x += dx;
                     }
 
