@@ -17,7 +17,7 @@ namespace Colr.DesktopApp.ApplicationLayer
     class MainWindowModel : INotifyPropertyChanged
     {
         public ImageSource ImageSource { get; private set; }
-        public SD.Bitmap Bitmap { get; private set; }
+        public ColrBitmap Bitmap { get; private set; }
         public int[] HueDistribution { get; private set; }
         public double? DominantHue { get; private set; }
 
@@ -25,18 +25,18 @@ namespace Colr.DesktopApp.ApplicationLayer
 
         public void LoadImage(string filePath)
         {
-            Bitmap = Bitmaps.LoadFromFile(filePath);
-            ImageSource = ToBitmapSource(Bitmap);
+            Bitmap = ColrBitmap.LoadFromFile(filePath);
+            ImageSource = ToBitmapSource(Bitmap.Bitmap);
 
             HueDistribution = null;
             DominantHue = null;
         }
 
-        public void AnalyzeImage()
+        public async void AnalyzeImage()
         {
             if (Bitmap != null)
             {
-                var dist = Bitmap.GetHueDistribution(120);
+                var dist = await Bitmap.GetHueDistributionAsync(120);
 
                 HueDistribution = dist.Distribution;
                 DominantHue = dist.DominantHue;
@@ -44,14 +44,6 @@ namespace Colr.DesktopApp.ApplicationLayer
         }
 
         ///////////////////////////////////////////////////////////////////////
-
-        void OnPropertyChanged(string propertyName)
-        {
-            var @event = PropertyChanged;
-
-            if (@event != null)
-                @event(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         static BitmapSource ToBitmapSource(SD.Bitmap source)
         {
@@ -76,6 +68,14 @@ namespace Colr.DesktopApp.ApplicationLayer
             }
 
             return bitmapSource;
+        }
+
+        void OnPropertyChanged(string propertyName)
+        {
+            var @event = PropertyChanged;
+
+            if (@event != null)
+                @event(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

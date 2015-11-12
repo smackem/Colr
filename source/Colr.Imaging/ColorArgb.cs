@@ -346,8 +346,8 @@ namespace Colr.Imaging
         public override bool Equals(object obj)
         {
             return obj != null
-            && obj.GetType() == typeof(ColorArgb)
-            && ((ColorArgb)obj).Argb == Argb;
+                && obj.GetType() == typeof(ColorArgb)
+                && ((ColorArgb)obj).Argb == Argb;
         }
 
         /// <summary>
@@ -370,10 +370,10 @@ namespace Colr.Imaging
         }
 
         /// <summary>
-        /// Tos the string.
+        /// Returns a <see cref="System.String"/> that represents the current <see cref="Colr.Imaging.ColorArgb"/>.
         /// </summary>
-        /// <returns>The string.</returns>
-        /// <param name="isHtmlFormat">If set to <c>true</c> is html format.</param>
+        /// <returns>A <see cref="System.String"/> that represents the current <see cref="Colr.Imaging.ColorArgb"/>.</returns>
+        /// <param name="isHtmlFormat">If set to <c>true</c> returns html format, excluding the alpha channel.</param>
         public string ToString(bool isHtmlFormat)
         {
             return isHtmlFormat
@@ -434,7 +434,7 @@ namespace Colr.Imaging
 
         ///////////////////////////////////////////////////////////////////////
 
-        private ColorArgb(byte a, byte r, byte g, byte b)
+        ColorArgb(byte a, byte r, byte g, byte b)
             : this()
         {
             A = a;
@@ -443,20 +443,20 @@ namespace Colr.Imaging
             B = b;
         }
 
-        private ColorArgb(int argb)
+        ColorArgb(int argb)
             : this()
         {
             Argb = argb;
         }
 
-        private ColorArgb(byte a, int rgb)
+        ColorArgb(byte a, int rgb)
             : this()
         {
             Argb = rgb;
             A = a;
         }
 
-        private static byte ClampDouble(double value)
+        static byte ClampDouble(double value)
         {
             if (value < 0.0)
             {
