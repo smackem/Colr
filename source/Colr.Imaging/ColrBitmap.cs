@@ -49,7 +49,7 @@ namespace Colr.Imaging
         }
 
         [Obsolete("This is just a naive reference implementation for GetHueDistributionAsync")]
-        internal HueDistribution GetHueDistribution(int hueSteps)
+        internal ColorDistribution GetHueDistribution(int hueSteps)
         {
             var hueCounts = new int[hueSteps];
             var granularity = hueSteps / 360.0;
@@ -71,13 +71,14 @@ namespace Colr.Imaging
                               ? (double?)(mostCommonHue.Value / 10.0)
                               : null;
 
-            return new HueDistribution(dominantHue, hueCounts);
+            return new ColorDistribution(dominantHue, hueCounts, null, null);
         }
 
-        public async Task<HueDistribution> GetHueDistributionAsync(int hueSteps)
+        public async Task<ColorDistribution> GetHueDistributionAsync(int hueSteps)
         {
             var distribution = await GetHueDistributionParallel(hueSteps);
             var mostCommonHue = 0;
+            var granularity = hueSteps / 360.0;
 
             for (var i = 1; i < distribution.Length; i++)
             {
@@ -85,11 +86,29 @@ namespace Colr.Imaging
                     mostCommonHue = i;
             }
 
-            var dominantHue = distribution[mostCommonHue] > 0
-                              ? (double?)(mostCommonHue / (hueSteps / 360.0))
-                              : null;
+            double? dominantHue;
+            int[] saturationDistribution;
+            int[] valueDistribution;
 
-            return new HueDistribution(dominantHue, distribution);
+            if (distribution[mostCommonHue] > 0)
+            {
+                dominantHue = mostCommonHue / granularity;
+
+                var svDistributions = await Task.WhenAll(
+                    GetDistributionForHueParallel(dominantHue.Value, granularity, 100, GetSaturationDistribution),
+                    GetDistributionForHueParallel(dominantHue.Value, granularity, 100, GetValueDistribution));
+
+                saturationDistribution = svDistributions[0];
+                valueDistribution = svDistributions[1];
+            }
+            else
+            {
+                dominantHue = null;
+                saturationDistribution = null;
+                valueDistribution = null;
+            }
+
+            return new ColorDistribution(dominantHue, distribution, saturationDistribution, valueDistribution);
         }
 
         /// <summary>
@@ -173,15 +192,12 @@ namespace Colr.Imaging
         async Task<int[]> GetHueDistributionParallel(int hueSteps)
         {
             var distribution = new int[hueSteps];
-            var pixelsPerTask = Bitmap.Width * Bitmap.Height / 4;
+            var taskCount = Environment.ProcessorCount;
+            var pixelsPerTask = Bitmap.Width * Bitmap.Height / taskCount;
 
-            var tasks = new[]
-            {
-                Task.Run(() => GetHueDistribution(0, pixelsPerTask, hueSteps)),
-                Task.Run(() => GetHueDistribution(pixelsPerTask, pixelsPerTask, hueSteps)),
-                Task.Run(() => GetHueDistribution(pixelsPerTask * 2, pixelsPerTask, hueSteps)),
-                Task.Run(() => GetHueDistribution(pixelsPerTask * 3, pixelsPerTask, hueSteps)),
-            };
+            var tasks = Enumerable.Range(0, taskCount)
+                .Select(i => Task.Run(() => GetHueDistribution(pixelsPerTask * i, pixelsPerTask, hueSteps)))
+                .ToArray();
 
             var segmentDistributions = await Task.WhenAll(tasks);
 
@@ -210,6 +226,77 @@ namespace Colr.Imaging
                     var multipliedHue = (int)(hsv.H * granularity);
 
                     distribution[multipliedHue]++;
+                }
+            }
+
+            return distribution;
+        }
+
+        delegate int[] DistributionFunction(int offset, int count, double hue, double hueGranularity, int steps);
+
+        async Task<int[]> GetDistributionForHueParallel(double hue, double hueGranularity, int steps,
+            DistributionFunction distFunction)
+        {
+            var distribution = new int[steps];
+            var taskCount = Environment.ProcessorCount;
+            var pixelsPerTask = Bitmap.Width * Bitmap.Height / taskCount;
+
+            var tasks = Enumerable.Range(0, taskCount)
+                .Select(i => Task.Run(() => distFunction(
+                    pixelsPerTask * i, pixelsPerTask, hue, hueGranularity, steps)))
+                .ToArray();
+
+            var segmentDistributions = await Task.WhenAll(tasks);
+
+            foreach (var dist in segmentDistributions)
+            {
+                for (var i = 0; i < distribution.Length; i++)
+                    distribution[i] += dist[i];
+            }
+
+            return distribution;
+        }
+
+        int[] GetSaturationDistribution(int offset, int count, double hue, double hueGranularity, int saturationSteps)
+        {
+            var distribution = new int[saturationSteps];
+            var granularity = saturationSteps / 1.0;
+            var hsvPixels = this.hsvPixels;
+            var end = offset + count;
+
+            for (var i = offset; i < end; i++)
+            {
+                var hsv = hsvPixels[i];
+                var h = (int)(hsv.H * granularity) / granularity;
+
+                if (hue == h && hsv.S > 0.02)
+                {
+                    var multipliedSaturation = (int)(hsv.S * granularity);
+
+                    distribution[multipliedSaturation]++;
+                }
+            }
+
+            return distribution;
+        }
+
+        int[] GetValueDistribution(int offset, int count, double hue, double hueGranularity, int valueSteps)
+        {
+            var distribution = new int[valueSteps];
+            var granularity = valueSteps / 1.0;
+            var hsvPixels = this.hsvPixels;
+            var end = offset + count;
+
+            for (var i = offset; i < end; i++)
+            {
+                var hsv = hsvPixels[i];
+                var h = (int)(hsv.H * granularity) / granularity;
+
+                if (hue == h && hsv.S > 0.02)
+                {
+                    var multipliedValue = (int)(hsv.V * granularity);
+
+                    distribution[multipliedValue]++;
                 }
             }
 

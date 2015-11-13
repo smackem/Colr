@@ -35,7 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ColrBitmap.cs" />
-    <Compile Include="HueDistribution.cs" />
+    <Compile Include="ColorDistribution.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ColorArgb.cs" />
     <Compile Include="ColorHsv.cs" />

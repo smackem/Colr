@@ -38,7 +38,7 @@ namespace Colr.DesktopApp.ApplicationLayer
             {
                 var dist = await Bitmap.GetHueDistributionAsync(120);
 
-                HueDistribution = dist.Distribution;
+                HueDistribution = dist.HueDistribution;
                 DominantHue = dist.DominantHue;
             }
         }
