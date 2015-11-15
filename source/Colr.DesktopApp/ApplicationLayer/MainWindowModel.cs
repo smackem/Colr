@@ -19,7 +19,9 @@ namespace Colr.DesktopApp.ApplicationLayer
         public ImageSource ImageSource { get; private set; }
         public ColrBitmap Bitmap { get; private set; }
         public int[] HueDistribution { get; private set; }
-        public double? DominantHue { get; private set; }
+        public ColorHsv? DominantColor { get; private set; }
+        public int[] SaturationDistribution { get; private set; }
+        public int[] ValueDistribution { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -29,7 +31,9 @@ namespace Colr.DesktopApp.ApplicationLayer
             ImageSource = ToBitmapSource(Bitmap.Bitmap);
 
             HueDistribution = null;
-            DominantHue = null;
+            SaturationDistribution = null;
+            ValueDistribution = null;
+            DominantColor = null;
         }
 
         public async void AnalyzeImage()
@@ -39,7 +43,9 @@ namespace Colr.DesktopApp.ApplicationLayer
                 var dist = await Bitmap.GetHueDistributionAsync(120);
 
                 HueDistribution = dist.HueDistribution;
-                DominantHue = dist.DominantHue;
+                DominantColor = dist.DominantColor;
+                SaturationDistribution = dist.DominantHueSaturationDistribution;
+                ValueDistribution = dist.DominantHueValueDistribution;
             }
         }
 

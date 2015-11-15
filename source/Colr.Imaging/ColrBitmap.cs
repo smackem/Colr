@@ -53,62 +53,51 @@ namespace Colr.Imaging
         {
             var hueCounts = new int[hueSteps];
             var granularity = hueSteps / 360.0;
-            var mostCommonHue = default(int?);
+            var mostCommonHue = 0;
 
             foreach (var hsv in this.hsvPixels)
             {
-                if (hsv.S > 0.02)
-                {
-                    var multipliedHue = (int)(hsv.H * granularity);
-                    var hueCount = ++hueCounts[multipliedHue];
+                var multipliedHue = (int)(hsv.H * granularity);
+                var hueCount = ++hueCounts[multipliedHue];
 
-                    if (mostCommonHue == null || hueCount > hueCounts[mostCommonHue.Value])
-                        mostCommonHue = multipliedHue;
-                }
+                if (hueCount > hueCounts[mostCommonHue])
+                    mostCommonHue = multipliedHue;
             }
 
-            var dominantHue = mostCommonHue != null
-                              ? (double?)(mostCommonHue.Value / 10.0)
-                              : null;
+            var dominantColor = ColorHsv.FromHsv(mostCommonHue / 10.0, 1.0, 1.0);
 
-            return new ColorDistribution(dominantHue, hueCounts, null, null);
+            return new ColorDistribution(dominantColor, hueCounts, null, null);
         }
 
         public async Task<ColorDistribution> GetHueDistributionAsync(int hueSteps)
         {
             var distribution = await GetHueDistributionParallel(hueSteps);
-            var mostCommonHue = 0;
+            var mostCommonHue = GetIndexOfMaxValue(distribution);
             var granularity = hueSteps / 360.0;
+            var dominantHue = mostCommonHue / granularity;
+            var svDistributions = await Task.WhenAll(
+                GetDistributionForHueParallel(dominantHue, granularity, 100, GetSaturationDistribution),
+                GetDistributionForHueParallel(dominantHue, granularity, 100, GetValueDistribution));
+
+            var mostCommonSaturation = GetIndexOfMaxValue(svDistributions[0]);
+            var mostCommonValue = GetIndexOfMaxValue(svDistributions[1]);
+
+            return new ColorDistribution(
+                ColorHsv.FromHsv(dominantHue, mostCommonSaturation / 100.0, mostCommonValue / 100.0),
+                distribution, svDistributions[0], svDistributions[1]);
+        }
+
+        int GetIndexOfMaxValue(int[] distribution)
+        {
+            var indexOfMaxValue = 0;
 
             for (var i = 1; i < distribution.Length; i++)
             {
-                if (distribution[i] > distribution[mostCommonHue])
-                    mostCommonHue = i;
+                if (distribution[i] > distribution[indexOfMaxValue])
+                    indexOfMaxValue = i;
             }
 
-            double? dominantHue;
-            int[] saturationDistribution;
-            int[] valueDistribution;
-
-            if (distribution[mostCommonHue] > 0)
-            {
-                dominantHue = mostCommonHue / granularity;
-
-                var svDistributions = await Task.WhenAll(
-                    GetDistributionForHueParallel(dominantHue.Value, granularity, 100, GetSaturationDistribution),
-                    GetDistributionForHueParallel(dominantHue.Value, granularity, 100, GetValueDistribution));
-
-                saturationDistribution = svDistributions[0];
-                valueDistribution = svDistributions[1];
-            }
-            else
-            {
-                dominantHue = null;
-                saturationDistribution = null;
-                valueDistribution = null;
-            }
-
-            return new ColorDistribution(dominantHue, distribution, saturationDistribution, valueDistribution);
+            return indexOfMaxValue;
         }
 
         /// <summary>
@@ -260,20 +249,19 @@ namespace Colr.Imaging
         int[] GetSaturationDistribution(int offset, int count, double hue, double hueGranularity, int saturationSteps)
         {
             var distribution = new int[saturationSteps];
-            var granularity = saturationSteps / 1.0;
             var hsvPixels = this.hsvPixels;
             var end = offset + count;
 
             for (var i = offset; i < end; i++)
             {
                 var hsv = hsvPixels[i];
-                var h = (int)(hsv.H * granularity) / granularity;
+                var h = (int)(hsv.H * hueGranularity) / hueGranularity;
 
-                if (hue == h && hsv.S > 0.02)
+                if (hue == h)
                 {
-                    var multipliedSaturation = (int)(hsv.S * granularity);
+                    var index = Math.Min((int)(hsv.S * saturationSteps), saturationSteps - 1);
 
-                    distribution[multipliedSaturation]++;
+                    distribution[index]++;
                 }
             }
 
@@ -283,20 +271,19 @@ namespace Colr.Imaging
         int[] GetValueDistribution(int offset, int count, double hue, double hueGranularity, int valueSteps)
         {
             var distribution = new int[valueSteps];
-            var granularity = valueSteps / 1.0;
             var hsvPixels = this.hsvPixels;
             var end = offset + count;
 
             for (var i = offset; i < end; i++)
             {
                 var hsv = hsvPixels[i];
-                var h = (int)(hsv.H * granularity) / granularity;
+                var h = (int)(hsv.H * hueGranularity) / hueGranularity;
 
-                if (hue == h && hsv.S > 0.02)
+                if (hue == h)
                 {
-                    var multipliedValue = (int)(hsv.V * granularity);
+                    var index = Math.Min((int)(hsv.V * valueSteps), valueSteps - 1);
 
-                    distribution[multipliedValue]++;
+                    distribution[index]++;
                 }
             }
 

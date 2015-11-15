@@ -8,14 +8,16 @@ namespace Colr.Imaging
 {
     public class ColorDistribution
     {
-        internal ColorDistribution(double? dominantHue, int[] distribution,
+        internal ColorDistribution(ColorHsv dominantColor, int[] distribution,
             int[] dominantHueSaturationDistribution, int[] dominantHueValueDistribution)
         {
-            DominantHue = dominantHue;
+            DominantColor = dominantColor;
             HueDistribution = distribution;
+            DominantHueSaturationDistribution = dominantHueSaturationDistribution;
+            DominantHueValueDistribution = dominantHueValueDistribution;
         }
 
-        public double? DominantHue { get; }
+        public ColorHsv DominantColor { get; }
         public int[] HueDistribution { get; }
         public int[] DominantHueSaturationDistribution { get; }
         public int[] DominantHueValueDistribution { get; }

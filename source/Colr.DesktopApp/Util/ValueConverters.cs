@@ -26,14 +26,14 @@ namespace Colr.DesktopApp.Util
         }
     }
 
-    class HueToBrushConverter : IValueConverter
+    class ColorHsvToBrushConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
                 return Brushes.Transparent;
 
-            var hsv = ColorHsv.FromHsv((double)value, 1.0, 1.0);
+            var hsv = (ColorHsv)value;
             var argb = ColorArgb.FromHsv(255, hsv);
 
             return new SolidColorBrush(Color.FromRgb(argb.R, argb.G, argb.B));

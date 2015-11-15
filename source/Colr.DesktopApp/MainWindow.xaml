@@ -10,7 +10,7 @@
         Title="Colr" Height="600" Width="800">
     <Window.Resources>
         <lx:NotNullToVisibleConverter x:Key="notNullToVisibleConverter" />
-        <lx:HueToBrushConverter x:Key="hueToBrushConverter" />
+        <lx:ColorHsvToBrushConverter x:Key="colorHsvToBrushConverter" />
     </Window.Resources>
 
     <Grid>
@@ -49,8 +49,17 @@
                         </lc:DistributionCurve.CurveFill>
                     </lc:DistributionCurve>
 
-                    <Border Height="25" Background="{Binding Path=DominantHue, Converter={StaticResource hueToBrushConverter}}"
+                    <Border Height="25" Background="{Binding Path=DominantColor, Converter={StaticResource colorHsvToBrushConverter}}"
                             BorderBrush="Black" BorderThickness="1" />
+
+                    <lc:DistributionCurve DistributionData="{Binding Path=SaturationDistribution}" Height="80"
+                                          Background="White" Foreground="Black"
+                                          BorderBrush="Black" BorderThickness="1"
+                                          Margin="0 4 0 0" />
+                    <lc:DistributionCurve DistributionData="{Binding Path=ValueDistribution}" Height="80"
+                                          Background="White" Foreground="Black"
+                                          BorderBrush="Black" BorderThickness="1"
+                                          Margin="0 4 0 4" />
                 </StackPanel>
             </StackPanel>
         </Grid>

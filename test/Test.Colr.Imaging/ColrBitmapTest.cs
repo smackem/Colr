@@ -57,8 +57,8 @@ namespace Test.Colr.Imaging
                 var dist2 = bitmap.GetHueDistributionAsync(3600).Result;
 
                 Assert.That(dist1, Is.Not.Null);
-                Assert.That(dist1.DominantHue == dist2.DominantHue);
-                Assert.That(dist1.DominantHue == 210.0);
+                Assert.That(dist1.DominantColor.H == dist2.DominantColor.H);
+                Assert.That(dist1.DominantColor.H == 210.0);
             }
 
             using (var stream = OpenResource("TestImage1SmallWithAlpha.png"))
@@ -68,8 +68,8 @@ namespace Test.Colr.Imaging
                 var dist2 = bitmap.GetHueDistributionAsync(3600).Result;
 
                 Assert.That(dist1, Is.Not.Null);
-                Assert.That(dist1.DominantHue == dist2.DominantHue);
-                Assert.That(dist1.DominantHue == 210.0);
+                Assert.That(dist1.DominantColor.H == dist2.DominantColor.H);
+                Assert.That(dist1.DominantColor.H == 210.0);
             }
         }
 
@@ -82,8 +82,9 @@ namespace Test.Colr.Imaging
                 var dist1 = bitmap.GetHueDistribution(3600);
                 var dist2 = bitmap.GetHueDistributionAsync(3600).Result;
 
-                Assert.That(dist1.DominantHue, Is.Null);
-                Assert.That(dist2.DominantHue, Is.Null);
+                Assert.That(dist1.DominantColor.H, Is.EqualTo(0.0));
+                Assert.That(dist2.DominantColor.H, Is.EqualTo(0.0));
+                Assert.That(dist2.DominantColor.S, Is.EqualTo(0.0));
             }
         }
 
@@ -94,7 +95,7 @@ namespace Test.Colr.Imaging
             using (var stream = OpenResource("TestImage1.jpg"))
             using (var bitmap = ColrBitmap.LoadFromStream(stream))
             {
-                for (var i = 0; i < 100; i++)
+                for (var i = 0; i < 20; i++)
                     bitmap.GetHueDistribution(3600);
             }
         }
