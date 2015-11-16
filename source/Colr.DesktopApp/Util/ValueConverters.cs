@@ -30,13 +30,58 @@ namespace Colr.DesktopApp.Util
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return Brushes.Transparent;
+            var hsv = value as ColorHsv?;
 
-            var hsv = (ColorHsv)value;
-            var argb = ColorArgb.FromHsv(255, hsv);
+            if (hsv == null)
+                return Binding.DoNothing;
 
-            return new SolidColorBrush(Color.FromRgb(argb.R, argb.G, argb.B));
+            return new SolidColorBrush(hsv.Value.ToColor(255));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    class ColorHsvToSaturationBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var hsvObj = value as ColorHsv?;
+
+            if (hsvObj == null)
+                return Binding.DoNothing;
+
+            var hsv = hsvObj.Value;
+
+            return new LinearGradientBrush(
+                ColorHsv.FromHsv(hsv.H, 0.0, hsv.V).ToColor(255),
+                ColorHsv.FromHsv(hsv.H, 1.0, hsv.V).ToColor(255),
+                0.0);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    class ColorHsvToValueBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var hsvObj = value as ColorHsv?;
+
+            if (hsvObj == null)
+                return Binding.DoNothing;
+
+            var hsv = hsvObj.Value;
+
+            return new LinearGradientBrush(
+                ColorHsv.FromHsv(hsv.H, hsv.S, 0.0).ToColor(255),
+                ColorHsv.FromHsv(hsv.H, hsv.S, 1.0).ToColor(255),
+                0.0);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

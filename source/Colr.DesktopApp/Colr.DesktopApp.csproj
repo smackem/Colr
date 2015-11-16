@@ -63,6 +63,8 @@
     <Compile Include="ApplicationLayer\MainWindowModel.cs" />
     <Compile Include="Controls\DistributionCurve.cs" />
     <Compile Include="Controls\DrawingPane.cs" />
+    <Compile Include="Util\BitmapExtensions.cs" />
+    <Compile Include="Util\ColorExtensions.cs" />
     <Compile Include="Util\NativeMethods.cs" />
     <Compile Include="Util\ValueConverters.cs" />
     <Page Include="MainWindow.xaml">
