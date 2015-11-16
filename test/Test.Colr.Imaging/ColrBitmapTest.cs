@@ -95,7 +95,7 @@ namespace Test.Colr.Imaging
             using (var stream = OpenResource("TestImage1.jpg"))
             using (var bitmap = ColrBitmap.LoadFromStream(stream))
             {
-                for (var i = 0; i < 20; i++)
+                for (var i = 0; i < 100; i++)
                     bitmap.GetHueDistribution(3600);
             }
         }
@@ -108,7 +108,7 @@ namespace Test.Colr.Imaging
             using (var stream = OpenResource("TestImage1.jpg"))
             using (var bitmap = ColrBitmap.LoadFromStream(stream))
             {
-                for (var i = 0; i < 20; i++)
+                for (var i = 0; i < 100; i++)
                     bitmap.GetHueDistributionAsync(3600).Wait();
             }
         }
