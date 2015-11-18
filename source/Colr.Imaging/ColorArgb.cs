@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
@@ -151,6 +152,7 @@ namespace Colr.Imaging
         /// </summary>
         /// <param name="argb1">The first instance.</param>
         /// <param name="argb2">THe second instance.</param>
+        /// <returns><c>true</c> if the two instances are equal.</returns>
         public static bool operator ==(ColorArgb argb1, ColorArgb argb2)
         {
             return argb1.Argb == argb2.Argb;
@@ -262,6 +264,8 @@ namespace Colr.Imaging
         /// is not in a supported format.</exception>
         public static ColorArgb Parse(string str)
         {
+            Contract.Requires(str != null);
+
             byte a = 255;
             int index;
             byte r;
@@ -376,9 +380,11 @@ namespace Colr.Imaging
         /// <param name="isHtmlFormat">If set to <c>true</c> returns html format, excluding the alpha channel.</param>
         public string ToString(bool isHtmlFormat)
         {
+            var format = CultureInfo.InvariantCulture;
+
             return isHtmlFormat
-                   ? String.Format("#{0:X2}{1:X2}{2:X2}", R, G, B)
-                   : String.Format("{0:X2}-{1:X2}-{2:X2}-{3:X2}", A, R, G, B);
+                   ? String.Format(format, "#{0:X2}{1:X2}{2:X2}", R, G, B)
+                   : String.Format(format, "{0:X2}-{1:X2}-{2:X2}-{3:X2}", A, R, G, B);
         }
 
         /// <summary>

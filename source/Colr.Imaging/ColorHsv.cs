@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Colr.Imaging
 {
@@ -24,6 +25,13 @@ namespace Colr.Imaging
             return new ColorHsv(h, s, v);
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())
@@ -32,6 +40,12 @@ namespace Colr.Imaging
             return Equals((ColorHsv)obj);
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             return (int)H << 16 | (int)(S * 255.0) << 8 | (int)(V * 255.0);
@@ -42,19 +56,40 @@ namespace Colr.Imaging
             return other.H == H && other.S == S && other.V == V;
         }
 
+        /// <summary>
+        /// Implements the operator ==, which compares two
+        /// <see cref="ColorHsv"/> instances for equality. 
+        /// </summary>
+        /// <param name="hsv1">The first instance.</param>
+        /// <param name="hsv2">The second instance.</param>
+        /// <returns><c>true</c> if the two instances are equal; otherwise <c>false</c>.</returns>
         public static bool operator ==(ColorHsv hsv1, ColorHsv hsv2)
         {
             return hsv1.Equals(hsv2);
         }
 
+        /// <summary>
+        /// Implements the operator !=, which compares two
+        /// <see cref="ColorHsv"/> instances for inequality. 
+        /// </summary>
+        /// <param name="hsv1">The first instance.</param>
+        /// <param name="hsv2">The second instance.</param>
+        /// <returns><c>true</c> if the two instances are not equal; otherwise <c>false</c>.</returns>
         public static bool operator !=(ColorHsv hsv1, ColorHsv hsv2)
         {
             return hsv1.Equals(hsv2) == false;
         }
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
-            return string.Format("H:{000.00} S:{1.000} V:{2.000}", H, S, V);
+            return string.Format(CultureInfo.InvariantCulture,
+                "H:{0,6:F2} S:{1,4:F2} V:{2,4:F2}", H, S, V);
         }
 
 

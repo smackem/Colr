@@ -75,5 +75,12 @@ namespace Test.Colr.Imaging
             Assert.That(ColorHsv.FromHsv(120.0, 0.5, 0.5) != ColorHsv.FromHsv(120.0, 0.5, 0.5), Is.False);
             Assert.That(ColorHsv.FromHsv(120.0, 0.5, 0.5) != ColorHsv.FromHsv(120.0, 0.5, 0.75), Is.True);
         }
+
+        [Test]
+        public void TestToString()
+        {
+            Assert.That(ColorHsv.FromHsv(120.1, 0.2, 0.3).ToString(),
+                Is.EqualTo("H:120.10 S:0.20 V:0.30"));
+        }
     }
 }
