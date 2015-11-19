@@ -3,12 +3,25 @@ using System.Globalization;
 
 namespace Colr.Imaging
 {
+    /// <summary>
+    /// Color hsv.
+    /// </summary>
     public struct ColorHsv : IEquatable<ColorHsv>
     {
+        /// <summary>
+        /// whatever
+        /// </summary>
         public readonly double H;
         public readonly double S;
         public readonly double V;
 
+        /// <summary>
+        /// Froms the hsv.
+        /// </summary>
+        /// <returns>The hsv.</returns>
+        /// <param name="h">The height.</param>
+        /// <param name="s">S.</param>
+        /// <param name="v">V.</param>
         public static ColorHsv FromHsv(double h, double s, double v)
         {
             return new ColorHsv(h, s, v);
@@ -96,7 +109,7 @@ namespace Colr.Imaging
         ///////////////////////////////////////////////////////////////////////
 
         private ColorHsv(double h, double s, double v)
-        : this()
+            : this()
         {
             if (h < 0.0 || h > 360.0)
                 throw new ArgumentOutOfRangeException("value", "0.0 - 360.0");
