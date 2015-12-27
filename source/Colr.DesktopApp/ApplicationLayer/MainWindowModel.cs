@@ -14,35 +14,36 @@ using System.Windows.Media.Imaging;
 namespace Colr.DesktopApp.ApplicationLayer
 {
     [Feather(FeatherAction.NotifyPropertyChanged)]
-    class MainWindowModel : INotifyPropertyChanged
+    class MainWindowModel : NotifyPropertyChanged
     {
         public ImageSource ImageSource { get; private set; }
         public ColrBitmap Bitmap { get; private set; }
-        public ColorDistribution ColorDistribution { get; private set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        public ColorHsv? DominantColor { get; private set; }
+        public IEnumerable<int> HueDistribution { get; private set; }
+        public IEnumerable<int> DominantHueSaturationDistribution { get; private set; }
+        public IEnumerable<int> DominantHueValueDistribution { get; private set; }
 
         public void LoadImage(string filePath)
         {
             Bitmap = ColrBitmap.LoadFromFile(filePath);
             ImageSource = Bitmap.Bitmap.ToBitmapSource();
-            ColorDistribution = null;
+            DominantColor = null;
+            HueDistribution = null;
+            DominantHueSaturationDistribution = null;
+            DominantHueValueDistribution = null;
         }
 
         public async void AnalyzeImage()
         {
             if (Bitmap != null)
-                ColorDistribution = await Bitmap.GetHueDistributionAsync(120);
-        }
-
-        ///////////////////////////////////////////////////////////////////////
-
-        void OnPropertyChanged(string propertyName)
-        {
-            var @event = PropertyChanged;
-
-            if (@event != null)
-                @event(this, new PropertyChangedEventArgs(propertyName));
+            {
+                var distribution = await Bitmap.GetColorDistributionAsync(120);
+                var dominantColor = distribution.GetDominantColor();
+                HueDistribution = distribution.GetHueDistribution();
+                DominantHueSaturationDistribution = distribution.GetSaturationDistribution(dominantColor.H);
+                DominantHueValueDistribution = distribution.GetValueDistribution(dominantColor.H);
+                DominantColor = dominantColor;
+            }
         }
     }
 }
