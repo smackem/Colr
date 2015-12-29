@@ -80,57 +80,21 @@ namespace Colr.Imaging
         }
 
         /// <summary>
-        /// Analyzes the image and calculates the hue distribution.
+        /// Analyzes the image and calculates the color distribution.
         /// </summary>
-        /// <param name="hueSteps">The number of steps to use for the distribution. The granularity
-        /// of the distribution is <paramref name="hueSteps"/> divided by 360 degrees.
+        /// <param name="hueSteps">The number of steps to use for the hue distribution. The granularity
+        /// of the hue distribution is <paramref name="hueSteps"/> divided by 360 degrees.
         /// </param>
-        /// <returns>An instance of <see cref="ColorDistribution"/>. The member
-        /// <see cref="ColorDistribution.HueDistribution"/> contains <paramref name="hueSteps"/> elements.</returns>
-        [Obsolete("This is just a naive reference implementation for GetHueDistributionAsync")]
-        internal ColorDistribution GetColorDistribution(int hueSteps)
+        /// <param name="saturationSteps">The number of steps to use for the saturation distribution.</param>
+        /// <param name="valueSteps">The number of steps to use for the value distribution.</param>
+        /// <returns>An instance of <see cref="ColorDistribution"/>. The method
+        /// <see cref="ColorDistribution.GetHueDistribution"/> returns <paramref name="hueSteps"/> elements.</returns>
+        public ColorDistribution GetColorDistribution(int hueSteps, int saturationSteps, int valueSteps)
         {
-            const int saturationSteps = 100;
-            const int valueSteps = 100;
             var distribution = new ColorDistribution(hueSteps, saturationSteps, valueSteps);
 
             foreach (var hsv in hsvPixels)
                 distribution.AddPixel(hsv);
-
-            return distribution;
-        }
-
-        /// <summary>
-        /// Analyzes the image and calculates the hue distribution.
-        /// </summary>
-        /// <param name="hueSteps">The number of steps to use for the distribution. The granularity
-        /// of the distribution is <paramref name="hueSteps"/> divided by 360 degrees.
-        /// </param>
-        /// <returns>An awaitable <see cref="Task"/> that yields an instance of <see cref="ColorDistribution"/>.
-        /// The member <see cref="ColorDistribution.HueDistribution"/> contains <paramref name="hueSteps"/> elements.</returns>
-        public async Task<ColorDistribution> GetColorDistributionAsync(int hueSteps)
-        {
-            const int saturationSteps = 100;
-            const int valueSteps = 100;
-
-            var taskCount = Environment.ProcessorCount;
-            var pixelsPerTask = Bitmap.Width * Bitmap.Height / taskCount;
-
-            var tasks = Enumerable.Range(0, taskCount)
-                .Select(i => Task.Run(() => GetColorDistribution(
-                    pixelsPerTask * i, pixelsPerTask, hueSteps, saturationSteps, valueSteps)))
-                .ToArray();
-
-            var segmentDistributions = await Task.WhenAll(tasks);
-            var distribution = default(ColorDistribution);
-
-            foreach (var dist in segmentDistributions)
-            {
-                if (distribution == null)
-                    distribution = dist;
-                else
-                    distribution.Add(dist);
-            }
 
             return distribution;
         }
@@ -183,19 +147,6 @@ namespace Colr.Imaging
             return targetBitmap;
         }
 
-        int GetIndexOfMaxValue(int[] distribution)
-        {
-            var indexOfMaxValue = 0;
-
-            for (var i = 1; i < distribution.Length; i++)
-            {
-                if (distribution[i] > distribution[indexOfMaxValue])
-                    indexOfMaxValue = i;
-            }
-
-            return indexOfMaxValue;
-        }
-
         static unsafe void FetchPixels(Bitmap bitmap, out List<ColorArgb> argbPixels, out List<ColorHsv> hsvPixels)
         {
             var pixelCount = bitmap.Width * bitmap.Height;
@@ -224,18 +175,6 @@ namespace Colr.Imaging
             {
                 bitmap.UnlockBits(bmd);
             }
-        }
-
-        ColorDistribution GetColorDistribution(int offset, int count, int hueSteps, int saturationSteps, int valueSteps)
-        {
-            var distribution = new ColorDistribution(hueSteps, saturationSteps, valueSteps);
-            var hsvPixels = this.hsvPixels;
-            var end = offset + count;
-
-            for (var i = offset; i < end; i++)
-                distribution.AddPixel(hsvPixels[i]);
-
-            return distribution;
         }
     }
 }

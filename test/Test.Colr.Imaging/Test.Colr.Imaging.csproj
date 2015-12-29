@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ColorArgbTest.cs" />
+    <Compile Include="ColorDistributionTest.cs" />
     <Compile Include="ColorHsvTest.cs" />
     <Compile Include="ColrBitmapTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

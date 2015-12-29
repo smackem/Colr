@@ -23,7 +23,7 @@ namespace Colr.DesktopApp.Controls
         DrawingPane curvePane;
 
         public static readonly DependencyProperty DistributionDataProperty =
-            DependencyProperty.Register("DistributionData", typeof(int[]), typeof(DistributionCurve),
+            DependencyProperty.Register("DistributionData", typeof(IReadOnlyList<int>), typeof(DistributionCurve),
                 new PropertyMetadata(null, TriggerRender));
 
         public static readonly DependencyProperty CurveFillProperty =
@@ -36,9 +36,9 @@ namespace Colr.DesktopApp.Controls
             SizeChanged += OnSizeChanged;
         }
 
-        public int[] DistributionData
+        public IReadOnlyList<int> DistributionData
         {
-            get { return (int[])GetValue(DistributionDataProperty); }
+            get { return (IReadOnlyList<int>)GetValue(DistributionDataProperty); }
             set { SetValue(DistributionDataProperty, value); }
         }
 
@@ -82,14 +82,14 @@ namespace Colr.DesktopApp.Controls
             {
                 var data = DistributionData;
 
-                if (data == null || data.Length < 2)
+                if (data == null || data.Count < 2)
                     return;
 
                 var width = this.curvePane.ActualWidth;
                 var height = this.curvePane.ActualHeight;
                 var maxValue = data.Max();
 
-                var dx = width / data.Length;
+                var dx = width / data.Count;
                 var dy = height / maxValue;
 
                 var geometry = new StreamGeometry();

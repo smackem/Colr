@@ -13,6 +13,7 @@
         <lx:ColorHsvToBrushConverter x:Key="colorHsvToBrushConverter" />
         <lx:ColorHsvToSaturationBrushConverter x:Key="colorHsvToSaturationBrushConverter" />
         <lx:ColorHsvToValueBrushConverter x:Key="colorHsvToValueBrushConverter" />
+        <SolidColorBrush x:Key="shineThroughBrush" Color="#FFF" Opacity="0.8" />
     </Window.Resources>
 
     <Grid>
@@ -42,28 +43,36 @@
                         Visibility="{Binding Path=ImageSource, Converter={StaticResource notNullToVisibleConverter}}"/>
 
                 <StackPanel Visibility="{Binding Path=DominantColor, Converter={StaticResource notNullToVisibleConverter}}">
-                    <lc:DistributionCurve DistributionData="{Binding Path=HueDistribution}" Height="80"
-                                          Background="White" Foreground="Black"
-                                          BorderBrush="Black" BorderThickness="1"
-                                          Margin="0 4 0 4">
-                        <lc:DistributionCurve.CurveFill>
+                    <Border Margin="0 4 0 4" Height="80">
+                        <Border.Background>
                             <ImageBrush ImageSource="/Resources/hues.png" />
-                        </lc:DistributionCurve.CurveFill>
-                    </lc:DistributionCurve>
+                        </Border.Background>
+                        <lc:DistributionCurve DistributionData="{Binding Path=HueDistribution}"
+                                              Background="{StaticResource shineThroughBrush}" Foreground="Black"
+                                              BorderBrush="Black" BorderThickness="1">
+                            <lc:DistributionCurve.CurveFill>
+                                <ImageBrush ImageSource="/Resources/hues.png" />
+                            </lc:DistributionCurve.CurveFill>
+                        </lc:DistributionCurve>
+                    </Border>
 
                     <Border Height="25" Background="{Binding Path=DominantColor, Converter={StaticResource colorHsvToBrushConverter}}"
                             BorderBrush="Black" BorderThickness="1" />
 
-                    <lc:DistributionCurve DistributionData="{Binding Path=DominantHueSaturationDistribution}" Height="80"
-                                          Background="White" Foreground="Black"
-                                          BorderBrush="Black" BorderThickness="1"
-                                          Margin="0 4 0 0"
-                                          CurveFill="{Binding Path=DominantColor, Converter={StaticResource colorHsvToSaturationBrushConverter}}" />
-                    <lc:DistributionCurve DistributionData="{Binding Path=DominantHueValueDistribution}" Height="80"
-                                          Background="White" Foreground="Black"
-                                          BorderBrush="Black" BorderThickness="1"
-                                          Margin="0 4 0 4"
-                                          CurveFill="{Binding Path=DominantColor, Converter={StaticResource colorHsvToValueBrushConverter}}" />
+                    <Border Margin="0 4 0 0" Height="80"
+                            Background="{Binding Path=DominantColor, Converter={StaticResource colorHsvToSaturationBrushConverter}}">
+                        <lc:DistributionCurve DistributionData="{Binding Path=DominantHueSaturationDistribution}"
+                                              Background="{StaticResource shineThroughBrush}" Foreground="Black"
+                                              BorderBrush="Black" BorderThickness="1"
+                                              CurveFill="{Binding Path=DominantColor, Converter={StaticResource colorHsvToSaturationBrushConverter}}" />
+                    </Border>
+                    <Border Margin="0 4 0 0" Height="80"
+                            Background="{Binding Path=DominantColor, Converter={StaticResource colorHsvToValueBrushConverter}}">
+                        <lc:DistributionCurve DistributionData="{Binding Path=DominantHueValueDistribution}"
+                                              Background="{StaticResource shineThroughBrush}" Foreground="Black"
+                                              BorderBrush="Black" BorderThickness="1"
+                                              CurveFill="{Binding Path=DominantColor, Converter={StaticResource colorHsvToValueBrushConverter}}" />
+                    </Border>
                 </StackPanel>
             </StackPanel>
         </Grid>

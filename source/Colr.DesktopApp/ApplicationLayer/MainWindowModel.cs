@@ -33,16 +33,21 @@ namespace Colr.DesktopApp.ApplicationLayer
             DominantHueValueDistribution = null;
         }
 
-        public async void AnalyzeImage()
+        public void AnalyzeImage()
         {
             if (Bitmap != null)
             {
-                var distribution = await Bitmap.GetColorDistributionAsync(120);
-                var dominantColor = distribution.GetDominantColor();
+                var distribution = Bitmap.GetColorDistribution(60, 40, 40);
+
                 HueDistribution = distribution.GetHueDistribution();
-                DominantHueSaturationDistribution = distribution.GetSaturationDistribution(dominantColor.H);
-                DominantHueValueDistribution = distribution.GetValueDistribution(dominantColor.H);
-                DominantColor = dominantColor;
+                DominantColor = distribution.GetDominantColor();
+
+                if (DominantColor != null)
+                {
+                    var dominantColor = DominantColor.Value;
+                    DominantHueSaturationDistribution = distribution.GetSaturationDistribution(dominantColor.H);
+                    DominantHueValueDistribution = distribution.GetValueDistribution(dominantColor.H);
+                }
             }
         }
     }

@@ -170,7 +170,7 @@ namespace Test.Colr.Imaging
 
         ///////////////////////////////////////////////////////////////////////
 
-        private static bool IsClose(double a, double b)
+        static bool IsClose(double a, double b)
         {
             return Math.Abs(a - b) < 0.0000001;
         }

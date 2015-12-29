@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Colr.Imaging
 {
-    public class ColorDistribution
+    public sealed class ColorDistribution
     {
         readonly int[,,] cube;
 
@@ -35,7 +35,7 @@ namespace Colr.Imaging
             get { return this.cube.GetLength(2); }
         }
 
-        public ColorHsv GetDominantColor()
+        public ColorHsv GetMostCommonColor()
         {
             var maxWeight = 0;
             var maxH = -1;
@@ -70,67 +70,136 @@ namespace Colr.Imaging
                 maxV / ValueGranularity);
         }
 
-        public IReadOnlyList<int> GetHueDistribution()
+        public ColorHsv? GetDominantColor()
         {
-            var hues = Hues;
-            var saturations = Saturations;
-            var values = Values;
-            var distribution = new List<int>(hues);
+            var minS = GetSaturationIndex(0.25);
+            var minV = GetValueIndex(0.25);
 
-            for (var indexH = 0; indexH < hues; indexH++)
+            var hueDistribution = InternalGetHueDistribution(minS, minV);
+            var maxWeight = 0;
+            var maxH = -1;
+
+            for (var indexH = 0; indexH < hueDistribution.Count; indexH++)
             {
-                var weight = 0;
+                var weight = hueDistribution[indexH];
 
-                for (var indexS = 0; indexS < saturations; indexS++)
+                if (weight > maxWeight)
                 {
-                    for (var indexV = 0; indexV < values; indexV++)
-                        weight += this.cube[indexH, indexS, indexV];
+                    maxWeight = weight;
+                    maxH = indexH;
                 }
             }
 
-            Contract.Ensures(distribution.Count == Hues);
-            return distribution;
+            if (maxH >= 0)
+            {
+                var saturations = Saturations;
+                var values = Values;
+                var maxS = -1;
+                var maxV = -1;
+
+                maxWeight = 0;
+
+                for (var indexS = minS; indexS < saturations; indexS++)
+                {
+                    for (var indexV = minV; indexV < values; indexV++)
+                    {
+                        var weight = this.cube[maxH, indexS, indexV];
+
+                        if (weight > maxWeight)
+                        {
+                            maxWeight = weight;
+                            maxS = indexS;
+                            maxV = indexV;
+                        }
+                    }
+                }
+
+                return ColorHsv.FromHsv(
+                    maxH / HueGranularity,
+                    maxS / SaturationGranularity,
+                    maxV / ValueGranularity);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public int GetColorWeight(ColorHsv hsv)
+        {
+            var indexH = GetHueIndex(hsv.H);
+            var indexS = GetSaturationIndex(hsv.S);
+            var indexV = GetValueIndex(hsv.V);
+
+            return this.cube[indexH, indexS, indexV];
+        }
+
+        public IReadOnlyList<int> GetHueDistribution()
+        {
+            Contract.Ensures(Contract.Result<IReadOnlyList<int>>() != null);
+            Contract.Ensures(Contract.Result<IReadOnlyList<int>>().Count == Hues);
+
+            return InternalGetHueDistribution(0, 0);
+        }
+
+        public IReadOnlyList<int> GetHueDistribution(double minSaturation, double minValue)
+        {
+            Contract.Requires(minSaturation >= 0.0 && minSaturation <= 1.0);
+            Contract.Requires(minValue >= 0.0 && minValue <= 1.0);
+            Contract.Ensures(Contract.Result<IReadOnlyList<int>>() != null);
+            Contract.Ensures(Contract.Result<IReadOnlyList<int>>().Count == Hues);
+
+            var minS = GetSaturationIndex(minSaturation);
+            var minV = GetValueIndex(minValue);
+
+            return InternalGetHueDistribution(minS, minV);
         }
 
         public IReadOnlyList<int> GetSaturationDistribution(double hue)
         {
+            Contract.Requires(hue >= 0.0 && hue < 360.0);
+            Contract.Ensures(Contract.Result<IReadOnlyList<int>>() != null);
+            Contract.Ensures(Contract.Result<IReadOnlyList<int>>().Count == Saturations);
+
             var saturations = Saturations;
             var values = Values;
-            var distribution = new List<int>(saturations);
-            var indexH = (int)(hue * HueGranularity);
+            var distribution = new int[saturations];
+            var indexH = GetHueIndex(hue);
 
-            for (var indexS = 0; indexS < saturations; indexS++)
+            Parallel.For(0, saturations, indexS =>
             {
                 var weight = 0;
 
                 for (var indexV = 0; indexV < values; indexV++)
                     weight += this.cube[indexH, indexS, indexV];
 
-                distribution.Add(weight);
-            }
+                distribution[indexS] = weight;
+            });
 
-            Contract.Ensures(distribution.Count == Saturations);
             return distribution;
         }
 
         public IReadOnlyList<int> GetValueDistribution(double hue)
         {
+            Contract.Requires(hue >= 0.0 && hue < 360.0);
+            Contract.Ensures(Contract.Result<IReadOnlyList<int>>() != null);
+            Contract.Ensures(Contract.Result<IReadOnlyList<int>>().Count == Values);
+
             var saturations = Saturations;
             var values = Values;
-            var distribution = new List<int>(values);
-            var indexH = (int)(hue * HueGranularity);
+            var distribution = new int[values];
+            var indexH = GetHueIndex(hue);
 
-            for (var indexV = 0; indexV < values; indexV++)
+            Parallel.For(0, values, indexV =>
             {
                 var weight = 0;
 
                 for (var indexS = 0; indexS < saturations; indexS++)
                     weight += this.cube[indexH, indexS, indexV];
 
-                distribution.Add(weight);
-            }
+                distribution[indexV] = weight;
+            });
 
-            Contract.Ensures(distribution.Count == Values);
             return distribution;
         }
 
@@ -145,6 +214,21 @@ namespace Colr.Imaging
             return result;
         }
 
+        internal double HueGranularity
+        {
+            get { return Hues / 360.0; }
+        }
+
+        internal double SaturationGranularity
+        {
+            get { return Saturations; }
+        }
+
+        internal double ValueGranularity
+        {
+            get { return Values; }
+        }
+
         internal void Add(ColorDistribution other)
         {
             Contract.Requires(other != null);
@@ -156,23 +240,25 @@ namespace Colr.Imaging
             var countS = Saturations;
             var countV = Values;
 
-            for (var h = 0; h < countH; h++)
+            Parallel.For(0, countH, indexH =>
             {
-                for (var s = 0; s < countS; s++)
+                for (var indexS = 0; indexS < countS; indexS++)
                 {
-                    for (var v = 0; v < countV; v++)
-                        this.cube[h, s, v] += other.cube[h, s, v];
+                    for (var indexV = 0; indexV < countV; indexV++)
+                        this.cube[indexH, indexS, indexV] += other.cube[indexH, indexS, indexV];
                 }
-            }
+            });
         }
 
-        internal void AddPixel(ColorHsv hsv)
+        internal ColorDistribution AddPixel(ColorHsv hsv)
         {
-            var indexH = (int)(hsv.H * HueGranularity);
-            var indexS = (int)(hsv.S * SaturationGranularity);
-            var indexV = (int)(hsv.V * ValueGranularity);
+            var indexH = GetHueIndex(hsv.H);
+            var indexS = GetSaturationIndex(hsv.S);
+            var indexV = GetValueIndex(hsv.V);
 
             this.cube[indexH, indexS, indexV]++;
+
+            return this;
         }
 
         ///////////////////////////////////////////////////////////////////////
@@ -182,19 +268,42 @@ namespace Colr.Imaging
             this.cube = cube;
         }
 
-        double HueGranularity
+        int GetHueIndex(double h)
         {
-            get { return Hues / 360.0; }
+            return (int)(h * HueGranularity);
         }
 
-        double SaturationGranularity
+        int GetSaturationIndex(double s)
         {
-            get { return Saturations / 100.0; }
+            return (int)(s * (SaturationGranularity - 1));
         }
 
-        double ValueGranularity
+        int GetValueIndex(double v)
         {
-            get { return Values / 100.0; }
+            return (int)(v * (ValueGranularity - 1));
+        }
+
+        IReadOnlyList<int> InternalGetHueDistribution(int minS, int minV)
+        {
+            var hues = Hues;
+            var saturations = Saturations;
+            var values = Values;
+            var distribution = new int[hues];
+
+            Parallel.For(0, hues, indexH =>
+            {
+                var weight = 0;
+
+                for (var indexS = minS; indexS < saturations; indexS++)
+                {
+                    for (var indexV = minV; indexV < values; indexV++)
+                        weight += this.cube[indexH, indexS, indexV];
+                }
+
+                distribution[indexH] = weight;
+            });
+
+            return distribution;
         }
     }
 }
