@@ -25,7 +25,7 @@ namespace Colr.DesktopApp.ApplicationLayer
 
         public void LoadImage(string filePath)
         {
-            Bitmap = ColrBitmap.LoadFromFile(filePath);
+            Bitmap = ColrBitmap.LoadFromFile(filePath, null);
             ImageSource = Bitmap.Bitmap.ToBitmapSource();
             DominantColor = null;
             HueDistribution = null;

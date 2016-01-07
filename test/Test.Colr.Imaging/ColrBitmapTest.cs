@@ -17,7 +17,7 @@ namespace Test.Colr.Imaging
         [Test]
         public void TestLoadFromStream()
         {
-            using (var bitmap = ColrBitmap.LoadFromStream(OpenResource("TestImage1.jpg")))
+            using (var bitmap = ColrBitmap.LoadFromStream(OpenResource("TestImage1.jpg"), null))
             {
                 Assert.That(bitmap.Bitmap.PixelFormat, Is.EqualTo(ColrBitmap.RequiredPixelFormat));
                 Assert.That(bitmap.Bitmap.Width, Is.EqualTo(1920));
@@ -32,17 +32,24 @@ namespace Test.Colr.Imaging
                 assertIsColor(bitmap.Bitmap.GetPixel(1919, 1199), 68, 40, 39);
             }
 
-            using (var bitmap = ColrBitmap.LoadFromStream(OpenResource("TestImage1SmallWithAlpha.png")))
+            using (var bitmap = ColrBitmap.LoadFromStream(OpenResource("TestImage1SmallWithAlpha.png"), null))
             {
                 Assert.That(bitmap.Bitmap.PixelFormat, Is.EqualTo(ColrBitmap.RequiredPixelFormat));
-                Assert.That(bitmap.Bitmap.Width, Is.EqualTo(96));
-                Assert.That(bitmap.Bitmap.Height, Is.EqualTo(60));
+                Assert.That(bitmap.Bitmap.Width, Is.EqualTo(192));
+                Assert.That(bitmap.Bitmap.Height, Is.EqualTo(120));
 
                 var color = bitmap.Bitmap.GetPixel(0, 0);
                 Assert.That(color.A, Is.EqualTo(100));
                 Assert.That(color.R, Is.EqualTo(96));
-                Assert.That(color.G, Is.EqualTo(99));
-                Assert.That(color.B, Is.EqualTo(140));
+                Assert.That(color.G, Is.EqualTo(124));
+                Assert.That(color.B, Is.EqualTo(173));
+            }
+
+            using (var bitmap = ColrBitmap.LoadFromStream(OpenResource("TestImage1.jpg"), new Size(100, 100)))
+            {
+                Assert.That(bitmap.Bitmap.PixelFormat, Is.EqualTo(ColrBitmap.RequiredPixelFormat));
+                Assert.That(bitmap.Bitmap.Width, Is.EqualTo(100));
+                Assert.That(bitmap.Bitmap.Height, Is.EqualTo(100));
             }
         }
 
@@ -50,7 +57,7 @@ namespace Test.Colr.Imaging
         public void TestDominantHueMethods()
         {
             using (var stream = OpenResource("TestImage1.jpg"))
-            using (var bitmap = ColrBitmap.LoadFromStream(stream))
+            using (var bitmap = ColrBitmap.LoadFromStream(stream, null))
             {
                 var dist = bitmap.GetColorDistribution(3600, 10, 10);
                 var dominantColor = dist.GetDominantColor();
@@ -61,7 +68,7 @@ namespace Test.Colr.Imaging
             }
 
             using (var stream = OpenResource("TestImage1SmallWithAlpha.png"))
-            using (var bitmap = ColrBitmap.LoadFromStream(stream))
+            using (var bitmap = ColrBitmap.LoadFromStream(stream, null))
             {
                 var dist = bitmap.GetColorDistribution(3600, 10, 10);
                 var dominantColor = dist.GetDominantColor();
@@ -76,7 +83,7 @@ namespace Test.Colr.Imaging
         public void TestDominantHueFailure()
         {
             using (var stream = OpenResource("BlackWhite.png"))
-            using (var bitmap = ColrBitmap.LoadFromStream(stream))
+            using (var bitmap = ColrBitmap.LoadFromStream(stream, null))
             {
                 var dist = bitmap.GetColorDistribution(360, 40, 40);
                 var dominantColor = dist.GetDominantColor();
@@ -85,7 +92,29 @@ namespace Test.Colr.Imaging
             }
         }
 
-    
+        [Test]
+        public void TestCorrelation()
+        {
+            var size = new Size(100, 100);
+
+            using (var bitmap1 = ColrBitmap.LoadFromStream(OpenResource("TestImage1.jpg"), size))
+            using (var bitmap2 = ColrBitmap.LoadFromStream(OpenResource("TestImage1Medium.png"), size))
+            {
+                Assert.That(ColrBitmap.GetCorrelationCoefficient(bitmap1, bitmap2),
+                    Is.EqualTo(0.0));
+            }
+
+            size = new Size(32, 32);
+
+            using (var bitmap1 = ColrBitmap.LoadFromStream(OpenResource("TestImage1.jpg"), size))
+            using (var bitmap2 = ColrBitmap.LoadFromStream(OpenResource("TestImage1SmallWithAlpha.png"), size))
+            {
+                Assert.That(ColrBitmap.GetCorrelationCoefficient(bitmap1, bitmap2),
+                    Is.LessThan(0.01));
+            }
+        }
+
+
         ///////////////////////////////////////////////////////////////////////
 
         Stream OpenResource(string name)

@@ -37,7 +37,7 @@ namespace Colr.Imaging
 
         public ColorHsv GetMostCommonColor()
         {
-            var maxWeight = 0;
+            var maxWeight = -1;
             var maxH = -1;
             var maxS = -1;
             var maxV = -1;
@@ -212,6 +212,24 @@ namespace Colr.Imaging
             result.Add(dist1);
             result.Add(dist2);
             return result;
+        }
+
+        public static double GetCorrelationCoefficient(ColorDistribution dist1, ColorDistribution dist2)
+        {
+            Contract.Requires(dist1 != null);
+            Contract.Requires(dist2 != null);
+            Contract.Requires(dist1.Hues == dist2.Hues);
+            Contract.Requires(dist1.Saturations == dist2.Saturations);
+            Contract.Requires(dist1.Values == dist2.Values);
+
+            var a = dist1.GetMostCommonColor();
+            var b = dist2.GetMostCommonColor();
+
+            var deltaH = a.H - b.H;
+            var deltaS = a.S - b.S;
+            var deltaV = a.V - b.V;
+            var distance = Math.Sqrt(deltaH * deltaH + deltaS * deltaS + deltaV * deltaV);
+            return distance / 360.0;
         }
 
         internal double HueGranularity
