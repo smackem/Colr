@@ -110,7 +110,21 @@ namespace Test.Colr.Imaging
             using (var bitmap2 = ColrBitmap.LoadFromStream(OpenResource("TestImage1SmallWithAlpha.png"), size))
             {
                 Assert.That(ColrBitmap.GetCorrelationCoefficient(bitmap1, bitmap2),
-                    Is.LessThan(0.01));
+                    Is.LessThan(0.05));
+            }
+
+            using (var bitmap1 = ColrBitmap.LoadFromStream(OpenResource("BlackWhite.png"), size))
+            using (var bitmap2 = ColrBitmap.LoadFromStream(OpenResource("BlackWhiteLarge.png"), size))
+            {
+                Assert.That(ColrBitmap.GetCorrelationCoefficient(bitmap1, bitmap2),
+                    Is.EqualTo(0.0));
+            }
+
+            using (var bitmap1 = ColrBitmap.LoadFromStream(OpenResource("Black.png"), size))
+            using (var bitmap2 = ColrBitmap.LoadFromStream(OpenResource("AntiBlack.png"), size))
+            {
+                Assert.That(ColrBitmap.GetCorrelationCoefficient(bitmap1, bitmap2),
+                    Is.GreaterThan(0.95));
             }
         }
 

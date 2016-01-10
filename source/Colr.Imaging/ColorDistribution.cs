@@ -225,11 +225,13 @@ namespace Colr.Imaging
             var a = dist1.GetMostCommonColor();
             var b = dist2.GetMostCommonColor();
 
-            var deltaH = a.H - b.H;
-            var deltaS = a.S - b.S;
-            var deltaV = a.V - b.V;
+            // normalize deltas to 0..100
+            var deltaH = (a.H - b.H) * 100.0 / 360.0;
+            var deltaS = (a.S - b.S) * 100.0;
+            var deltaV = (a.V - b.V) * 100.0;
             var distance = Math.Sqrt(deltaH * deltaH + deltaS * deltaS + deltaV * deltaV);
-            return distance / 360.0;
+            const double maxDistance = 173.2051; //Math.Sqrt(100*100 + 100*100 + 100*100);
+            return distance / maxDistance;
         }
 
         internal double HueGranularity

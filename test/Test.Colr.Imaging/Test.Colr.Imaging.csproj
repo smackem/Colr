@@ -88,6 +88,13 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\TestImage1Medium.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\BlackWhiteLarge.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\AntiBlack.png" />
+    <EmbeddedResource Include="Resources\Black.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

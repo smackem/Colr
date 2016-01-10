@@ -177,7 +177,7 @@ namespace Test.Colr.Imaging
                 .AddPixel(ColorHsv.FromHsv(359.0, 1.0, 1.0));
 
             Assert.That(ColorDistribution.GetCorrelationCoefficient(dist1, dist2),
-                Is.GreaterThan(0.95).And.LessThanOrEqualTo(1.0));
+                Is.GreaterThan(0.9).And.LessThanOrEqualTo(1.0));
         }
 
         ///////////////////////////////////////////////////////////////////////
