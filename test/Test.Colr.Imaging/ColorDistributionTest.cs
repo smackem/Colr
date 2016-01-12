@@ -50,6 +50,16 @@ namespace Test.Colr.Imaging
             expected[0] = 2;
             expected[49] = 2;
             CollectionAssert.AreEqual(expected, saturations);
+
+            saturations = distribution.GetSaturationDistribution(null);
+
+            Assert.That(saturations, Is.Not.Null);
+            Assert.That(saturations.Count, Is.EqualTo(distribution.Saturations));
+
+            expected = new int[100];
+            expected[0] = 4;
+            expected[49] = 5;
+            CollectionAssert.AreEqual(expected, saturations);
         }
 
         [Test]
@@ -64,6 +74,16 @@ namespace Test.Colr.Imaging
             var expected = new int[100];
             expected[0] = 2;
             expected[49] = 2;
+            CollectionAssert.AreEqual(expected, values);
+
+            values = distribution.GetValueDistribution(null);
+
+            Assert.That(values, Is.Not.Null);
+            Assert.That(values.Count, Is.EqualTo(distribution.Values));
+
+            expected = new int[100];
+            expected[0] = 4;
+            expected[49] = 5;
             CollectionAssert.AreEqual(expected, values);
         }
 
